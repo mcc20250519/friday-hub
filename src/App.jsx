@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider, useAuth } from '@/store/AuthContext'
+import { AuthProvider } from '@/store/AuthContext'
 import Layout from '@/components/layout/Layout'
+import ProtectedRoute from '@/components/common/ProtectedRoute'
 import { TooltipProvider } from '@/components/ui/tooltip'
 
 // 页面组件
@@ -14,27 +15,6 @@ import Login from '@/pages/Login'
 import Register from '@/pages/Register'
 import ForgotPassword from '@/pages/ForgotPassword'
 import About from '@/pages/About'
-
-/**
- * 受保护的路由：未登录时跳转到 /login
- */
-function ProtectedRoute({ children }) {
-  const { user, loading } = useAuth()
-
-  if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-      </div>
-    )
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />
-  }
-
-  return children
-}
 
 /**
  * 根组件
@@ -59,15 +39,11 @@ export default function App() {
             <Route path="/register" element={<Register />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            {/* 受保护路由 */}
-            <Route
-              path="/profile"
-              element={
-                <ProtectedRoute>
-                  <Profile />
-                </ProtectedRoute>
-              }
-            />
+            {/* 受保护路由 - 需要登录 */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/profile" element={<Profile />} />
+              {/* 其他需要登录的路由可以放在这里 */}
+            </Route>
           </Route>
 
           {/* 404 fallback */}
