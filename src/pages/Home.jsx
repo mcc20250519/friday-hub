@@ -169,8 +169,35 @@ export default function Home() {
         )}
       </section>
 
+      {/* CTA 区域 - 注册引导 */}
+      <section className="bg-gradient-to-r from-purple-600 to-blue-600 py-12 md:py-16 mt-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+            立即加入 Friday Hub
+          </h2>
+          <p className="text-purple-100 mb-8 max-w-2xl mx-auto">
+            注册账号即可收藏喜爱的工具、追踪下载记录，第一时间获取新功能更新
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/register"
+              className="inline-flex items-center justify-center px-8 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors shadow-lg"
+            >
+              立即注册
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Link>
+            <Link
+              to="/login"
+              className="inline-flex items-center justify-center px-8 py-3 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-colors border border-purple-400"
+            >
+              已有账号？登录
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* 底部 Banner */}
-      <section className="bg-gradient-to-r from-blue-50 to-purple-50 border-t border-gray-200 py-12 md:py-16 mt-12">
+      <section className="bg-gradient-to-r from-blue-50 to-purple-50 border-t border-gray-200 py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
             还有更多工具正在开发中
