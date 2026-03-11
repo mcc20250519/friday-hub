@@ -1,0 +1,9 @@
+name = "friday-hub"
+pages_build_caching = false
+
+[build]
+command = "npm run build"
+cwd = "."
+watch_paths = ["src/**/*.{jsx,js,css}"]
+
+[env.production]
