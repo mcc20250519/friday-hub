@@ -4,7 +4,7 @@ import { useAuth } from '@/store/AuthContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Eye, EyeOff, Loader2, Mail, ArrowRight, CheckCircle } from 'lucide-react'
 
 export default function Register() {
   const navigate = useNavigate()
@@ -32,8 +32,9 @@ export default function Register() {
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
-  // 成功提示
-  const [successMessage, setSuccessMessage] = useState('')
+  // 注册成功状态
+  const [isRegistered, setIsRegistered] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
 
   // 表单验证
   const validateForm = () => {
@@ -86,9 +87,8 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    // 重置错误和成功消息
+    // 重置错误
     setErrors({ email: '', password: '', confirmPassword: '', general: '' })
-    setSuccessMessage('')
 
     // 表单验证
     if (!validateForm()) {
@@ -100,13 +100,9 @@ export default function Register() {
     try {
       await signUp(formData.email, formData.password)
 
-      // 显示成功消息
-      setSuccessMessage('注册成功！请检查邮箱完成验证')
-
-      // 2秒后跳转到登录页
-      setTimeout(() => {
-        navigate('/login')
-      }, 2000)
+      // 注册成功，显示验证提示
+      setIsRegistered(true)
+      setRegisteredEmail(formData.email)
     } catch (error) {
       console.error('注册失败:', error)
 
@@ -132,6 +128,74 @@ export default function Register() {
     }
   }
 
+  // 注册成功后的验证提示页面
+  if (isRegistered) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
+        {/* Logo */}
+        <Link
+          to="/"
+          className="mb-8 text-2xl font-bold text-gray-900 hover:text-purple-600 transition-colors"
+        >
+          Friday Hub
+        </Link>
+
+        {/* 验证提示卡片 */}
+        <Card className="w-full max-w-md shadow-lg">
+          <CardContent className="pt-8 pb-8 text-center">
+            {/* 成功图标 */}
+            <div className="mx-auto w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mb-6">
+              <CheckCircle className="h-10 w-10 text-green-600" />
+            </div>
+
+            {/* 标题 */}
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              验证邮件已发送
+            </h2>
+
+            {/* 描述 */}
+            <p className="text-gray-600 mb-6">
+              我们已向您的邮箱发送了验证链接，请查收并完成验证
+            </p>
+
+            {/* 邮箱地址显示 */}
+            <div className="flex items-center justify-center gap-2 bg-gray-100 rounded-lg px-4 py-3 mb-6">
+              <Mail className="h-5 w-5 text-gray-500" />
+              <span className="text-gray-700 font-medium">{registeredEmail}</span>
+            </div>
+
+            {/* 提示信息 */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+              <p className="text-sm text-blue-700">
+                <strong>提示：</strong> 验证邮件可能会被归类到垃圾邮件文件夹，如果收件箱中没有找到，请检查垃圾邮件。
+              </p>
+            </div>
+
+            {/* 操作按钮 */}
+            <div className="space-y-3">
+              <Button
+                onClick={() => navigate('/login')}
+                className="w-full bg-purple-600 hover:bg-purple-700"
+              >
+                前往登录
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+
+              <Button
+                variant="outline"
+                onClick={() => window.location.reload()}
+                className="w-full"
+              >
+                返回注册
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
+  // 注册表单页面
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center px-4 py-12">
       {/* Logo */}
@@ -154,13 +218,6 @@ export default function Register() {
         </CardHeader>
 
         <CardContent>
-          {/* 成功提示 */}
-          {successMessage && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
-              <p className="text-sm text-green-600 text-center">{successMessage}</p>
-            </div>
-          )}
-
           {/* 通用错误提示 */}
           {errors.general && (
             <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md">
