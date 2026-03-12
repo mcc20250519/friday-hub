@@ -117,6 +117,37 @@ export function AuthProvider({ children }) {
       throw new Error('用户未登录')
     }
 
+    console.log('AuthContext.updateProfile - 用户ID:', user.id)
+    console.log('AuthContext.updateProfile - 更新数据:', data)
+
+    // 先检查 profile 是否存在
+    const { data: existingProfile, error: checkError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('id', user.id)
+      .single()
+
+    console.log('AuthContext.updateProfile - 检查现有profile:', existingProfile, '错误:', checkError)
+
+    // 如果不存在，先创建
+    if (checkError && checkError.code === 'PGRST116') {
+      console.log('AuthContext.updateProfile - profile不存在，创建新记录')
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert({ id: user.id, ...data })
+        .select()
+        .single()
+
+      if (insertError) {
+        console.error('AuthContext.updateProfile - 创建失败:', insertError)
+        throw insertError
+      }
+
+      setProfile(newProfile)
+      return newProfile
+    }
+
+    // 存在则更新
     const { data: updatedProfile, error } = await supabase
       .from('profiles')
       .update(data)
@@ -125,9 +156,11 @@ export function AuthProvider({ children }) {
       .single()
 
     if (error) {
-      console.error('更新 profile 失败:', error)
+      console.error('AuthContext.updateProfile - 更新失败:', error)
       throw error
     }
+
+    console.log('AuthContext.updateProfile - 更新成功:', updatedProfile)
 
     // 更新本地状态
     setProfile(updatedProfile)

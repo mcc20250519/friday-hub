@@ -63,24 +63,24 @@ export default function Home() {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-white mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-white mb-4 sm:mb-6 px-2">
             用AI，让每件事都更简单
           </h1>
-          <p className="text-lg md:text-xl text-gray-100 mb-10 max-w-3xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-gray-100 mb-8 sm:mb-10 max-w-3xl mx-auto px-4">
             精选AI效率工具、工作流模板与聚会小游戏，全部由站长亲测可用
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
             <Link
               to="/tools"
-              className="inline-flex items-center justify-center px-8 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+              className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors min-h-[48px]"
             >
               探索工具库
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <Link
               to="/games"
-              className="inline-flex items-center justify-center px-8 py-3 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-colors border border-purple-400"
+              className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-3 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-colors border border-purple-400 min-h-[48px]"
             >
               去玩游戏
               <ArrowRight className="ml-2 h-5 w-5" />
@@ -170,25 +170,25 @@ export default function Home() {
       </section>
 
       {/* CTA 区域 - 注册引导 */}
-      <section className="bg-gradient-to-r from-purple-600 to-blue-600 py-12 md:py-16 mt-12">
+      <section className="bg-gradient-to-r from-purple-600 to-blue-600 py-10 sm:py-12 md:py-16 mt-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-3 sm:mb-4 px-2">
             立即加入 Friday Hub
           </h2>
-          <p className="text-purple-100 mb-8 max-w-2xl mx-auto">
+          <p className="text-purple-100 mb-6 sm:mb-8 max-w-2xl mx-auto text-sm sm:text-base px-4">
             注册账号即可收藏喜爱的工具、追踪下载记录，第一时间获取新功能更新
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
             <Link
               to="/register"
-              className="inline-flex items-center justify-center px-8 py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-3 bg-white text-purple-600 font-semibold rounded-lg hover:bg-gray-50 transition-colors shadow-lg min-h-[48px]"
             >
               立即注册
               <ArrowRight className="ml-2 h-5 w-5" />
             </Link>
             <Link
               to="/login"
-              className="inline-flex items-center justify-center px-8 py-3 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-colors border border-purple-400"
+              className="inline-flex items-center justify-center px-6 sm:px-8 py-3.5 sm:py-3 bg-purple-700 text-white font-semibold rounded-lg hover:bg-purple-800 transition-colors border border-purple-400 min-h-[48px]"
             >
               已有账号？登录
             </Link>
@@ -197,13 +197,13 @@ export default function Home() {
       </section>
 
       {/* 底部 Banner */}
-      <section className="bg-gradient-to-r from-blue-50 to-purple-50 border-t border-gray-200 py-12 md:py-16">
+      <section className="bg-gradient-to-r from-blue-50 to-purple-50 border-t border-gray-200 py-10 sm:py-12 md:py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-3 sm:mb-4 px-2">
             还有更多工具正在开发中
           </h2>
-          <p className="text-gray-600 mb-8">欢迎关注更新</p>
-          <button className="inline-flex items-center px-8 py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors">
+          <p className="text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base">欢迎关注更新</p>
+          <button className="inline-flex items-center px-6 sm:px-8 py-3.5 sm:py-3 bg-purple-600 text-white font-semibold rounded-lg hover:bg-purple-700 transition-colors min-h-[48px]">
             联系站长
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>

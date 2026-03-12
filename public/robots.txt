@@ -1,0 +1,15 @@
+# robots.txt for Friday Hub
+# https://friday-hub.vercel.app
+
+# 允许所有爬虫访问
+User-agent: *
+Allow: /
+
+# 禁止访问的路径
+Disallow: /admin/
+Disallow: /api/
+Disallow: /private/
+Disallow: /auth/callback
+
+# 网站地图
+Sitemap: https://friday-hub.vercel.app/sitemap.xml
