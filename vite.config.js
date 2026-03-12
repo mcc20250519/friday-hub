@@ -60,13 +60,10 @@ export default defineConfig({
     // CSS 配置
     cssCodeSplit: true,
     cssMinify: true,
-    // 压缩配置
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true, // 生产环境移除 console
-        drop_debugger: true, // 生产环境移除 debugger
-      },
+    // 压缩配置（使用 esbuild，Vite 内置无需额外安装）
+    minify: 'esbuild',
+    esbuildOptions: {
+      drop: ['console', 'debugger'], // 生产环境移除 console 和 debugger
     },
   },
   // 优化依赖预构建
