@@ -47,7 +47,7 @@ export default defineConfig({
           // React 核心库
           'react-vendor': ['react', 'react-dom', 'react-router-dom'],
           // UI 组件库
-          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-tooltip'],
+          'ui-vendor': ['@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-tooltip', '@radix-ui/react-select', '@radix-ui/react-checkbox', '@radix-ui/react-label', '@radix-ui/react-slot'],
           // 工具库
           'utils-vendor': ['clsx', 'tailwind-merge', 'class-variance-authority'],
           // 数据获取和状态管理
