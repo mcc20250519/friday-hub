@@ -144,10 +144,10 @@ export default function Tools() {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white mb-3 sm:mb-4 px-2">
             AI工具库
           </h1>
-          <p className="text-lg md:text-xl text-purple-100 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg md:text-xl text-purple-100 max-w-2xl mx-auto px-4">
             精选效率工具，全部亲测可用
           </p>
         </div>
@@ -155,35 +155,36 @@ export default function Tools() {
 
       {/* 筛选区域 */}
       <section className="sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            {/* 分类 Tab */}
-            <div className="flex gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-hide">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3 sm:py-4">
+          <div className="flex flex-col gap-3 sm:gap-4">
+            {/* 分类 Tab - 移动端增加横向滚动 */}
+            <div className="flex gap-2 overflow-x-auto pb-1 sm:pb-0 -mx-3 px-3 sm:mx-0 sm:px-0 scrollbar-hide">
               {categories.map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => setActiveCategory(cat.id)}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  className={`flex-shrink-0 px-3 sm:px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors min-h-[40px] ${
                     activeCategory === cat.id
                       ? 'bg-purple-600 text-white'
                       : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                   }`}
                 >
                   <span className="mr-1">{cat.emoji}</span>
-                  {cat.name}
+                  <span className="hidden sm:inline">{cat.name}</span>
+                  <span className="sm:hidden">{cat.name.slice(0, 2)}</span>
                 </button>
               ))}
             </div>
 
             {/* 搜索框 */}
-            <div className="relative flex-1 max-w-md md:ml-auto">
+            <div className="relative w-full sm:flex-1 sm:max-w-md sm:ml-auto">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 type="text"
-                placeholder="搜索工具名称或描述..."
+                placeholder="搜索工具..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10"
+                className="pl-10 w-full"
               />
             </div>
           </div>

@@ -142,11 +142,12 @@ export default function Navbar() {
           {/* 右侧：汉堡菜单（移动端） */}
           <div className="md:hidden">
             {loading ? (
-              <div className="h-10 w-10 bg-gray-200 rounded animate-pulse" />
+              <div className="h-11 w-11 bg-gray-200 rounded animate-pulse" />
             ) : (
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="inline-flex items-center justify-center p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+                className="inline-flex items-center justify-center p-2.5 rounded-md text-gray-600 hover:bg-gray-100 transition-colors min-h-[44px] min-w-[44px]"
+                aria-label="菜单"
               >
                 {mobileMenuOpen ? (
                   <X className="h-6 w-6" />
@@ -167,7 +168,7 @@ export default function Navbar() {
                 key={link.href}
                 to={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md font-medium transition-colors ${
+                className={`block px-3 py-3 rounded-md font-medium transition-colors min-h-[44px] flex items-center ${
                   isActive(link.href)
                     ? 'bg-blue-50 text-blue-600'
                     : 'text-gray-600 hover:bg-gray-100'
@@ -198,13 +199,13 @@ export default function Navbar() {
                   </button>
                 </>
               ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="block w-full text-center px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium"
-                >
-                  登录
-                </Link>
+              <Link
+                to="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="block w-full text-center px-3 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors font-medium min-h-[44px] flex items-center justify-center"
+              >
+                登录
+              </Link>
               )}
             </div>
           </div>
