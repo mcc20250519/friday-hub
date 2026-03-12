@@ -1,0 +1,26 @@
+#!/bin/sh
+
+# 检查 package.json 是否有更改
+if git diff --cached --name-only | grep -q "package.json"; then
+  echo "📦 package.json changed, checking pnpm-lock.yaml..."
+
+  # 检查 lock 文件是否也被修改
+  if ! git diff --cached --name-only | grep -q "pnpm-lock.yaml"; then
+    echo "⚠️  Warning: package.json changed but pnpm-lock.yaml was not updated"
+    echo "🔄 Running pnpm install to update lock file..."
+
+    pnpm install
+
+    if [ $? -ne 0 ]; then
+      echo "❌ Failed to update pnpm-lock.yaml"
+      exit 1
+    fi
+
+    # 将更新后的 lock 文件加入暂存区
+    git add pnpm-lock.yaml
+    echo "✅ pnpm-lock.yaml updated and staged"
+  fi
+fi
+
+# 运行 lint-staged
+npx lint-staged
