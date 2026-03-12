@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "node -e \"process.env.CI || require('child_process').execSync('husky', {stdio:'inherit'})\""
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": ["eslint --fix"]
