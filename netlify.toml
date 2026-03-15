@@ -1,5 +1,5 @@
 [build]
-command = "npm install --registry=https://registry.npmjs.org/ && npm run build"
+command = "npm ci && npm run build"
 publish = "dist"
 
 [[redirects]]
@@ -11,3 +11,4 @@ status = 200
 NODE_VERSION = "20"
 CI = "true"
 HUSKY = "0"
+NPM_CONFIG_PRODUCTION = "false"
