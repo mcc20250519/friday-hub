@@ -9,6 +9,12 @@ const notifyListeners = () => {
 }
 
 export function toast({ title, description, variant = 'default', duration = 3000 }) {
+  // 去重：如果已存在相同 title + description + variant 的 toast，则不重复添加
+  const duplicate = toasts.find(
+    (t) => t.title === title && t.description === description && t.variant === variant
+  )
+  if (duplicate) return duplicate.id
+
   const id = Math.random().toString(36).substring(2, 9)
   const newToast = { id, title, description, variant, duration }
   

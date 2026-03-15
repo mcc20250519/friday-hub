@@ -12,6 +12,7 @@ import Tools from '@/pages/Tools'
 import ToolDetail from '@/pages/ToolDetail'
 import Games from '@/pages/Games'
 import PartyGame from '@/pages/PartyGame'
+import UnoGame from '@/pages/games/UnoGame'
 import Profile from '@/pages/Profile'
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
@@ -38,6 +39,8 @@ export default function App() {
               <Route path="/tools/:id" element={<ToolDetail />} />
               <Route path="/games" element={<Games />} />
               <Route path="/games/party" element={<PartyGame />} />
+              <Route path="/games/uno" element={<UnoGame />} />
+              <Route path="/games/uno/room/:roomCode" element={<UnoGame />} />
               <Route path="/about" element={<About />} />
 
               {/* 认证相关路由 */}

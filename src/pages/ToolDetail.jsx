@@ -21,6 +21,7 @@ import {
   FileCode
 } from 'lucide-react'
 import JSZip from 'jszip'
+import Comments from '@/components/common/Comments'
 
 // 获取分类emoji
 const getCategoryEmoji = (category) => {
@@ -121,6 +122,7 @@ export default function ToolDetail() {
     try {
       setLoading(true)
       setError('')
+      setTool(null) // 切换 id 时清空旧数据，避免闪烁旧内容
 
       // 获取工具详情
       const { data, error: supabaseError } = await supabase
@@ -750,12 +752,12 @@ document.getElementById('actionBtn').addEventListener('click', () => {
     })
   }
 
-  // 加载中
-  if (loading) {
+  // 加载中（包含初始加载和 id 切换时的过渡）
+  if (loading || (!tool && !error)) {
     return <ToolDetailSkeleton />
   }
 
-  // 错误/404
+  // 真实错误/404（仅在加载完成且确实没有数据时显示）
   if (error || !tool) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
@@ -1013,6 +1015,11 @@ document.getElementById('actionBtn').addEventListener('click', () => {
           </div>
         </div>
       )}
+
+      {/* 评论区 */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Comments toolId={id} />
+      </div>
 
       {/* 确认对话框 */}
       {confirmDialog.isOpen && (

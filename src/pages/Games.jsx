@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Users, Clock, Gauge, Gamepad2, Sparkles } from 'lucide-react'
@@ -7,6 +8,18 @@ import { Users, Clock, Gauge, Gamepad2, Sparkles } from 'lucide-react'
  * 游戏数据
  */
 const games = [
+  {
+    id: 'uno',
+    name: 'UNO 在线游戏',
+    desc: '经典 UNO 纸牌游戏在线版，支持 2-4 人实时对战，邀请朋友一起玩',
+    tags: ['纸牌', '策略', '多人', '实时对战'],
+    players: '2-4人',
+    duration: '10-30分钟',
+    difficulty: '简单',
+    emoji: '🃏',
+    gradient: 'from-purple-400 via-pink-500 to-red-600',
+    available: true,
+  },
   {
     id: 'party',
     name: 'AI桌游聚会游戏',
@@ -139,8 +152,22 @@ function GameCard({ game }) {
  * 游戏广场页面
  */
 export default function Games() {
+  const [isEntering, setIsEntering] = useState(true)
+
+  // 淡入效果：组件挂载后触发淡入动画
+  useEffect(() => {
+    // 下一帧开始淡入
+    const timer = requestAnimationFrame(() => {
+      setIsEntering(false)
+    })
+    return () => cancelAnimationFrame(timer)
+  }, [])
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div 
+      className="min-h-screen bg-gray-50 transition-opacity duration-500 ease-out"
+      style={{ opacity: isEntering ? 0 : 1 }}
+    >
       {/* 顶部 Banner */}
       <div className="bg-gradient-to-r from-orange-400 via-pink-500 to-purple-600 text-white">
         <div className="max-w-6xl mx-auto px-4 py-16 sm:py-20">

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Download, Globe, Tag, ArrowRight } from 'lucide-react'
+import Comments from '@/components/common/Comments'
 
 export default function Home() {
   // Tab 列表
@@ -208,6 +209,11 @@ export default function Home() {
             <ArrowRight className="ml-2 h-5 w-5" />
           </button>
         </div>
+      </section>
+
+      {/* 评论区 */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <Comments />
       </section>
     </div>
   )

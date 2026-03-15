@@ -10,7 +10,9 @@
     "prepare": "node -e \"process.env.CI || require('child_process').execSync('husky', {stdio:'inherit'})\""
   },
   "lint-staged": {
-    "*.{js,jsx,ts,tsx}": ["eslint --fix"]
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix"
+    ]
   },
   "dependencies": {
     "@radix-ui/react-checkbox": "1.0.4",
@@ -21,6 +23,7 @@
     "@radix-ui/react-tabs": "1.0.4",
     "@radix-ui/react-tooltip": "1.0.7",
     "@supabase/supabase-js": "2.39.0",
+    "canvas-confetti": "^1.9.4",
     "class-variance-authority": "0.7.0",
     "clsx": "2.0.0",
     "jszip": "^3.10.1",
