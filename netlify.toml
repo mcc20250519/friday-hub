@@ -1,5 +1,5 @@
 [build]
-command = "npm install --verbose && npm run build"
+command = "npm install --registry=https://registry.npmjs.org/ && npm run build"
 publish = "dist"
 
 [[redirects]]
