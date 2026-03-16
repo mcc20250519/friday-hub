@@ -45,44 +45,71 @@ function isLandscapeOrientation() {
   return window.innerWidth > window.innerHeight
 }
 
+// 游戏区域设计基准尺寸（PC 端标准）
+const DESIGN_WIDTH = 1024
+const DESIGN_HEIGHT = 614
+
 /**
- * Hook: 计算游戏区域自适应尺寸
+ * Hook: 计算游戏区域自适应缩放
+ * 
+ * 返回：
+ * - scale: 缩放比例（移动端横屏时 < 1，其他情况 = 1）
+ * - gameAreaWidth: 游戏区域宽度（设计尺寸）
+ * - gameAreaHeight: 游戏区域高度（设计尺寸）
+ * - isMobile: 是否移动设备
+ * - containerStyle: 外层容器样式（用于居中缩放后的游戏区域）
  */
 function useGameAreaSize() {
-  const [gameAreaHeight, setGameAreaHeight] = useState(680)
+  const [scale, setScale] = useState(1)
   const isMobile = isMobileDevice()
 
   useEffect(() => {
-    if (!isMobile) return
+    if (!isMobile) {
+      setScale(1)
+      return
+    }
 
-    const calculateHeight = () => {
+    const calculateScale = () => {
       const vh = window.innerHeight
       const vw = window.innerWidth
       const isLandscape = vw > vh
 
       if (isLandscape) {
-        // 横屏：视口高度 - 顶部栏(约60px) - 内边距(32px) - 底部间距(16px)
-        // 顶部栏包含房间信息、按钮等，大约占 60px
-        const availableHeight = vh - 60 - 32 - 16
-        // 确保最小高度，避免太小
-        setGameAreaHeight(Math.max(availableHeight, 300))
+        // 横屏模式：计算等比缩放
+        // 可用区域：视口高度 - 顶部栏(60px) - 内边距(32px)
+        const headerHeight = 60
+        const padding = 32
+        const availableHeight = vh - headerHeight - padding
+        const availableWidth = vw - padding
+
+        // 计算宽高缩放比，取较小值确保内容完整显示
+        const scaleX = availableWidth / DESIGN_WIDTH
+        const scaleY = availableHeight / DESIGN_HEIGHT
+        const newScale = Math.min(scaleX, scaleY, 1) // 不放大，最多原始尺寸
+
+        setScale(newScale)
       } else {
-        // 竖屏：使用默认高度
-        setGameAreaHeight(680)
+        // 竖屏模式：不缩放
+        setScale(1)
       }
     }
 
-    calculateHeight()
-    window.addEventListener('resize', calculateHeight)
-    window.addEventListener('orientationchange', calculateHeight)
+    calculateScale()
+    window.addEventListener('resize', calculateScale)
+    window.addEventListener('orientationchange', calculateScale)
 
     return () => {
-      window.removeEventListener('resize', calculateHeight)
-      window.removeEventListener('orientationchange', calculateHeight)
+      window.removeEventListener('resize', calculateScale)
+      window.removeEventListener('orientationchange', calculateScale)
     }
   }, [isMobile])
 
-  return { gameAreaHeight, isMobile }
+  return {
+    scale,
+    gameAreaWidth: DESIGN_WIDTH,
+    gameAreaHeight: DESIGN_HEIGHT,
+    isMobile,
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -130,8 +157,8 @@ export default function GameBoard({ room, players, isHost, leaveRoom, botPlayerI
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  // ── 游戏区域自适应尺寸（移动端横屏）───────────────────────────
-  const { gameAreaHeight, isMobile } = useGameAreaSize()
+  // ── 游戏区域自适应缩放（移动端横屏）───────────────────────────
+  const { scale, gameAreaWidth, gameAreaHeight, isMobile } = useGameAreaSize()
 
   // 游戏模式：优先取 room.game_mode（数据库权威），缺失时从 localStorage 兜底
   // 防止刷新/加载竞态导致模式回退为 standard
@@ -1328,18 +1355,37 @@ useUnoBot({
       {/* 开场动画期间（openingActive=true 且 openingReady=false）主界面透明，避免发牌/比牌动画被遮挡或界面抢眼 */}
       {/* 注意：opacity 不能设在外层容器上，否则会影响通过 createPortal 渲染的动画元素 */}
       {/* 改为：背景容器始终可见，内部元素通过 opacity 控制 */}
+      {/* 移动端横屏：使用 transform scale 等比缩放整个游戏区域 */}
       <div
-        className="w-full max-w-5xl mx-auto bg-gradient-to-br from-pink-100 to-pink-50 rounded-3xl shadow-lg overflow-hidden relative"
+        className="w-full mx-auto bg-gradient-to-br from-pink-100 to-pink-50 rounded-3xl shadow-lg overflow-hidden relative"
+        style={isMobile && scale < 1 ? {
+          // 移动端横屏：居中显示缩放后的游戏区域
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: `calc(100vh - 60px - 32px)`, // 视口高度 - 顶部栏 - 内边距
+          maxHeight: `${gameAreaHeight}px`,
+        } : undefined}
       >
         {/*
-          游戏区域：固定高度，相对定位。
+          游戏区域：固定尺寸（设计尺寸），通过 transform scale 缩放。
           - OpponentArea 绝对定位，覆盖上 2/3 区域，内部以中心点做环形排列
           - CenterPile 绝对定位在正中心
           - PlayerHand 绝对定位在底部
           - 发牌/翻牌动画在 inset-0 absolute 层中播放，相对于此游戏区域定位
           - 动画元素通过 createPortal 渲染到此容器内，zIndex 确保它们显示在游戏元素上层
         */}
-        <div className="relative w-full" style={{ height: `${gameAreaHeight}px` }} ref={gameAreaRef}>
+        <div
+          className="relative w-full"
+          style={{
+            width: `${gameAreaWidth}px`,
+            height: `${gameAreaHeight}px`,
+            transform: isMobile && scale < 1 ? `scale(${scale})` : undefined,
+            transformOrigin: 'center center',
+            flexShrink: 0,
+          }}
+          ref={gameAreaRef}
+        >
           {/* ── 遮罩层：游戏内容渲染时立即显示，防止游戏画面一闪而过 ── */}
           {/* 条件：showGame=true 且 openingReady=false 且 winnerId 不存在 */}
           {/* 这样遮罩会和游戏内容同时渲染，但在内容上面，确保玩家看不到闪烁 */}

@@ -46,18 +46,87 @@ function isLandscape() {
 /**
  * 横屏锁定 Hook
  *
+ * @param {Object} options
+ * @param {boolean} options.enabled - 是否启用横屏模式（默认 true）
  * @returns {{
  *   isLandscape: boolean,  // 当前是否横屏
  *   showPrompt: boolean,   // 是否显示横屏提示（竖屏时为 true）
  *   isMobile: boolean,     // 是否为移动设备
+ *   isFullscreen: boolean, // 是否处于全屏模式
  *   lockLandscape: Function, // 手动锁定横屏
- *   unlockLandscape: Function // 手动解锁
+ *   unlockLandscape: Function, // 手动解锁
+ *   enterFullscreen: Function, // 进入全屏
+ *   exitFullscreen: Function  // 退出全屏
  * }}
  */
-export function useLandscapeMode() {
+export function useLandscapeMode({ enabled = true } = {}) {
   const [landscape, setLandscape] = useState(isLandscape())
   const [showPrompt, setShowPrompt] = useState(false)
-  const [isMobile, setIsMobile] = useState(isMobileDevice())
+  const [isMobile, setIsMobile] = useState(false) // 初始为 false，等 useEffect 判断
+  const [isFullscreen, setIsFullscreen] = useState(false)
+
+  // 检测全屏状态
+  const checkFullscreen = useCallback(() => {
+    const fullscreen = !!(
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      document.mozFullScreenElement ||
+      document.msFullscreenElement
+    )
+    setIsFullscreen(fullscreen)
+    return fullscreen
+  }, [])
+
+  // 进入全屏
+  const enterFullscreen = useCallback(async () => {
+    const element = document.documentElement
+
+    try {
+      if (element.requestFullscreen) {
+        await element.requestFullscreen()
+      } else if (element.webkitRequestFullscreen) {
+        await element.webkitRequestFullscreen()
+      } else if (element.mozRequestFullScreen) {
+        await element.mozRequestFullScreen()
+      } else if (element.msRequestFullscreen) {
+        await element.msRequestFullscreen()
+      }
+      console.log('[Landscape] 已进入全屏模式')
+      return true
+    } catch (err) {
+      console.log('[Landscape] 进入全屏失败:', err.message)
+      return false
+    }
+  }, [])
+
+  // 退出全屏
+  const exitFullscreen = useCallback(async () => {
+    try {
+      if (document.exitFullscreen) {
+        await document.exitFullscreen()
+      } else if (document.webkitExitFullscreen) {
+        await document.webkitExitFullscreen()
+      } else if (document.mozCancelFullScreen) {
+        await document.mozCancelFullScreen()
+      } else if (document.msExitFullscreen) {
+        await document.msExitFullscreen()
+      }
+      console.log('[Landscape] 已退出全屏模式')
+      return true
+    } catch (err) {
+      console.log('[Landscape] 退出全屏失败:', err.message)
+      return false
+    }
+  }, [])
+
+  // 切换全屏
+  const toggleFullscreen = useCallback(async () => {
+    if (checkFullscreen()) {
+      return exitFullscreen()
+    } else {
+      return enterFullscreen()
+    }
+  }, [checkFullscreen, enterFullscreen, exitFullscreen])
 
   // 尝试锁定屏幕方向
   const lockLandscape = useCallback(async () => {
@@ -100,6 +169,14 @@ export function useLandscapeMode() {
   }, [])
 
   useEffect(() => {
+    // 如果未启用，直接返回，不进行任何横屏操作
+    if (!enabled) {
+      setIsMobile(false)
+      setLandscape(false)
+      setShowPrompt(false)
+      return
+    }
+
     if (!isMobileDevice()) {
       setIsMobile(false)
       return
@@ -115,9 +192,14 @@ export function useLandscapeMode() {
 
     checkOrientation()
     lockLandscape()
+    checkFullscreen()
 
     const handleOrientationChange = () => {
       checkOrientation()
+    }
+
+    const handleFullscreenChange = () => {
+      checkFullscreen()
     }
 
     if (screen.orientation) {
@@ -126,22 +208,38 @@ export function useLandscapeMode() {
     window.addEventListener('resize', handleOrientationChange)
     window.addEventListener('orientationchange', handleOrientationChange)
 
+    // 监听全屏变化
+    document.addEventListener('fullscreenchange', handleFullscreenChange)
+    document.addEventListener('webkitfullscreenchange', handleFullscreenChange)
+    document.addEventListener('mozfullscreenchange', handleFullscreenChange)
+    document.addEventListener('MSFullscreenChange', handleFullscreenChange)
+
     return () => {
       if (screen.orientation) {
         screen.orientation.removeEventListener('change', handleOrientationChange)
       }
       window.removeEventListener('resize', handleOrientationChange)
       window.removeEventListener('orientationchange', handleOrientationChange)
+
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
+      document.removeEventListener('webkitfullscreenchange', handleFullscreenChange)
+      document.removeEventListener('mozfullscreenchange', handleFullscreenChange)
+      document.removeEventListener('MSFullscreenChange', handleFullscreenChange)
+
       unlockLandscape()
     }
-  }, [lockLandscape, unlockLandscape])
+  }, [enabled, lockLandscape, unlockLandscape, checkFullscreen])
 
   return {
     isLandscape: landscape,
     showPrompt,
     isMobile,
+    isFullscreen,
     lockLandscape,
     unlockLandscape,
+    enterFullscreen,
+    exitFullscreen,
+    toggleFullscreen,
   }
 }
 
@@ -160,8 +258,9 @@ export default useLandscapeMode
  * @param {boolean} props.show - 是否显示
  * @param {string} props.gameName - 游戏名称（用于提示文案）
  * @param {string} props.accentColor - 主题色（purple/blue/green/orange）
+ * @param {Function} props.onEnterFullscreen - 进入全屏的回调
  */
-export function LandscapePrompt({ show, gameName = '游戏', accentColor = 'purple' }) {
+export function LandscapePrompt({ show, gameName = '游戏', accentColor = 'purple', onEnterFullscreen }) {
   if (!show) return null
 
   const colorClasses = {
@@ -230,6 +329,19 @@ export function LandscapePrompt({ show, gameName = '游戏', accentColor = 'purp
           </p>
         </div>
 
+        {/* 全屏按钮 */}
+        {onEnterFullscreen && (
+          <button
+            onClick={onEnterFullscreen}
+            className="mt-6 px-6 py-3 bg-white/20 hover:bg-white/30 rounded-xl text-base font-medium transition-all duration-200 flex items-center gap-2 backdrop-blur-sm border border-white/30"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+            </svg>
+            进入全屏模式
+          </button>
+        )}
+
         {/* 底部提示 */}
         <div className="absolute bottom-6 text-white/50 text-xs">
           旋转设备后自动继续
@@ -283,11 +395,17 @@ export function LandscapeGameLayout({
   accentColor = 'purple',
   children,
   className = '',
+  enterFullscreen, // 传入全屏函数
 }) {
   return (
     <>
       {/* 横屏提示覆盖层 */}
-      <LandscapePrompt show={showPrompt} gameName={gameName} accentColor={accentColor} />
+      <LandscapePrompt
+        show={showPrompt}
+        gameName={gameName}
+        accentColor={accentColor}
+        onEnterFullscreen={enterFullscreen}
+      />
 
       {/* 游戏容器 - 移动端横屏时固定视口 */}
       <div
@@ -362,10 +480,16 @@ export function LandscapeCardLayout({
   gameName = '游戏',
   accentColor = 'purple',
   children,
+  enterFullscreen, // 传入全屏函数
 }) {
   return (
     <>
-      <LandscapePrompt show={showPrompt} gameName={gameName} accentColor={accentColor} />
+      <LandscapePrompt
+        show={showPrompt}
+        gameName={gameName}
+        accentColor={accentColor}
+        onEnterFullscreen={enterFullscreen}
+      />
 
       <div
         className={`

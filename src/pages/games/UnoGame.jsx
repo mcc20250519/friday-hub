@@ -68,8 +68,6 @@ function UnoRoomPage({ roomCode }) {
   const navigate = useNavigate()
   const { user } = useAuth()
 
-  // ── 手机端横屏锁定 ─────────────────────────────────────────────
-  const { isLandscape, showPrompt: showLandscapePrompt, isMobile } = useLandscapeMode()
   const [joinAttempted, setJoinAttempted] = useState(false)
   const [addingBot, setAddingBot] = useState(false)
   // 进入房间 / 游戏开始 的加载动画是否已播完（onFinished 回调后才为 true）
@@ -94,13 +92,6 @@ function UnoRoomPage({ roomCode }) {
   // 用 useEffect 而不是直接在回调里 navigate，避免在组件渲染期间调用 navigate
   const [leaveDone, setLeaveDone] = useState(false)
 
-  // 监听 leaveDone → 跳转到大厅（不依赖 room 是否存在）
-  useEffect(() => {
-    if (leaveDone) {
-      navigate('/games')
-    }
-  }, [leaveDone]) // eslint-disable-line react-hooks/exhaustive-deps
-
   const {
     room,
     players,
@@ -114,6 +105,18 @@ function UnoRoomPage({ roomCode }) {
     loading,
     error,
   } = useUnoRoom(roomCode)
+
+  // ── 手机端横屏锁定：只在游戏阶段启用 ─────────────────────────────────────
+  // 大厅阶段 (WAITING) 不启用横屏，游戏阶段 (PLAYING/FINISHED) 才启用
+  const isGamePhase = room && (room.status === ROOM_STATUS.PLAYING || room.status === ROOM_STATUS.FINISHED)
+  const { isLandscape, showPrompt: showLandscapePrompt, isMobile, enterFullscreen } = useLandscapeMode({ enabled: !!isGamePhase })
+
+  // 监听 leaveDone → 跳转到大厅（不依赖 room 是否存在）
+  useEffect(() => {
+    if (leaveDone) {
+      navigate('/games')
+    }
+  }, [leaveDone, navigate])
 
   // handleLeaveRoom：LeaveAnimation 调用的实际离开函数（必须在 useUnoRoom 之后定义）
   const handleLeaveRoom = async () => {
@@ -363,6 +366,7 @@ function UnoRoomPage({ roomCode }) {
       isMobile={isMobile}
       gameName="UNO"
       accentColor="purple"
+      enterFullscreen={enterFullscreen}
     >
       {/* 进入房间 / 游戏开始 加载动画：挂载后不提前 unmount，等动画自己淡出完成 */}
       {showLoadingOverlay && (
@@ -451,8 +455,8 @@ function UnoHomePage() {
   const [showPlayerSelect, setShowPlayerSelect] = useState(false)
   const [selectedPlayers, setSelectedPlayers] = useState(2)
 
-  // ── 手机端横屏锁定 ─────────────────────────────────────────────
-  const { showPrompt: showLandscapePrompt, isLandscape, isMobile } = useLandscapeMode()
+  // ── 创建房间阶段不启用横屏 ─────────────────────────────────────────────
+  const { showPrompt: showLandscapePrompt, isLandscape, isMobile, enterFullscreen } = useLandscapeMode({ enabled: false })
 
   const handleCreateRoom = async () => {
     setCreating(true)
@@ -475,6 +479,7 @@ function UnoHomePage() {
         isLandscape={isLandscape}
         gameName="UNO"
         accentColor="purple"
+        enterFullscreen={enterFullscreen}
       >
         <div className="w-full max-w-md space-y-6">
           {/* 标题 */}
@@ -581,6 +586,7 @@ function UnoHomePage() {
       isLandscape={isLandscape}
       gameName="UNO"
       accentColor="purple"
+      enterFullscreen={enterFullscreen}
     >
       <div className="w-full max-w-md space-y-6">
         {/* 标题 */}
