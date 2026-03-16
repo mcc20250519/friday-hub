@@ -55,12 +55,15 @@ export default function MobileGameBoard({
   const [showColorPicker, setShowColorPicker] = useState(false)
   const [showMenu, setShowMenu] = useState(false)
 
+  // 判断是否为房主（基于 room.host_id）
+  const isHost = user && room && room.host_id === user.id
+
   // 初始化游戏状态（房主）
   useEffect(() => {
-    if (!gameState && room?.status === ROOM_STATUS.PLAYING && myPlayer?.is_host) {
+    if (!gameState && room?.status === ROOM_STATUS.PLAYING && isHost) {
       initializeGameState()
     }
-  }, [gameState, room?.status, myPlayer?.is_host, initializeGameState])
+  }, [gameState, room?.status, isHost, initializeGameState])
 
   // 加载中状态
   if (stateLoading || !gameState) {
