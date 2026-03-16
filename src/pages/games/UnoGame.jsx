@@ -25,6 +25,7 @@ import RoomLobby from '@/components/uno/lobby/RoomLobby'
 import GameBoard from '@/components/uno/game/GameBoard'
 import UnoLoadingScreen from '@/components/uno/game/UnoLoadingScreen'
 import ExitAnimation from '@/components/uno/shared/ExitAnimation'
+import useLandscapeMode, { LandscapePrompt } from '@/hooks/uno/useLandscapeMode'
 
 export default function UnoGame() {
   const { roomCode } = useParams()
@@ -66,6 +67,9 @@ export default function UnoGame() {
 function UnoRoomPage({ roomCode }) {
   const navigate = useNavigate()
   const { user } = useAuth()
+
+  // ── 手机端横屏锁定 ─────────────────────────────────────────────
+  const { isLandscape, showPrompt: showLandscapePrompt, isMobile } = useLandscapeMode()
   const [joinAttempted, setJoinAttempted] = useState(false)
   const [addingBot, setAddingBot] = useState(false)
   // 进入房间 / 游戏开始 的加载动画是否已播完（onFinished 回调后才为 true）
@@ -355,6 +359,8 @@ function UnoRoomPage({ roomCode }) {
   // ── 统一 return：UnoLoadingScreen 与内容层共存，避免重挂载 ───
   return (
     <>
+      {/* 手机端横屏提示：竖屏时覆盖显示 */}
+      <LandscapePrompt show={showLandscapePrompt} />
       {/* 进入房间 / 游戏开始 加载动画：挂载后不提前 unmount，等动画自己淡出完成 */}
       {showLoadingOverlay && (
         <UnoLoadingScreen
@@ -442,6 +448,9 @@ function UnoHomePage() {
   const [showPlayerSelect, setShowPlayerSelect] = useState(false)
   const [selectedPlayers, setSelectedPlayers] = useState(2)
 
+  // ── 手机端横屏锁定 ─────────────────────────────────────────────
+  const { showPrompt: showLandscapePrompt } = useLandscapeMode()
+
   const handleCreateRoom = async () => {
     setCreating(true)
     try {
@@ -457,7 +466,10 @@ function UnoHomePage() {
   // 人数选择界面
   if (showPlayerSelect) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50 flex items-center justify-center p-4">
+      <>
+        {/* 手机端横屏提示：竖屏时覆盖显示 */}
+        <LandscapePrompt show={showLandscapePrompt} />
+        <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md space-y-6">
           {/* 标题 */}
           <div className="text-center">
@@ -543,7 +555,8 @@ function UnoHomePage() {
             💡 选择人数后点击"创建房间"，邀请朋友或添加机器人开始游戏
           </div>
         </div>
-      </div>
+        </div>
+      </>
     )
   }
 
@@ -557,7 +570,10 @@ function UnoHomePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50 flex items-center justify-center p-4">
+    <>
+      {/* 手机端横屏提示：竖屏时覆盖显示 */}
+      <LandscapePrompt show={showLandscapePrompt} />
+      <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md space-y-6">
         {/* 标题 */}
         <div className="text-center">
@@ -622,6 +638,7 @@ function UnoHomePage() {
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
