@@ -30,6 +30,61 @@ import GameOpeningOrchestrator from './GameOpeningOrchestrator'
 import UnoButton from './UnoButton'
 import RankNotification, { useRankNotification } from './RankNotification'
 
+/**
+ * 检测是否为移动设备
+ */
+function isMobileDevice() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    || (window.matchMedia && window.matchMedia('(max-width: 768px)').matches)
+}
+
+/**
+ * 检测是否为横屏
+ */
+function isLandscapeOrientation() {
+  return window.innerWidth > window.innerHeight
+}
+
+/**
+ * Hook: 计算游戏区域自适应尺寸
+ */
+function useGameAreaSize() {
+  const [gameAreaHeight, setGameAreaHeight] = useState(680)
+  const isMobile = isMobileDevice()
+
+  useEffect(() => {
+    if (!isMobile) return
+
+    const calculateHeight = () => {
+      const vh = window.innerHeight
+      const vw = window.innerWidth
+      const isLandscape = vw > vh
+
+      if (isLandscape) {
+        // 横屏：视口高度 - 顶部栏(约60px) - 内边距(32px) - 底部间距(16px)
+        // 顶部栏包含房间信息、按钮等，大约占 60px
+        const availableHeight = vh - 60 - 32 - 16
+        // 确保最小高度，避免太小
+        setGameAreaHeight(Math.max(availableHeight, 300))
+      } else {
+        // 竖屏：使用默认高度
+        setGameAreaHeight(680)
+      }
+    }
+
+    calculateHeight()
+    window.addEventListener('resize', calculateHeight)
+    window.addEventListener('orientationchange', calculateHeight)
+
+    return () => {
+      window.removeEventListener('resize', calculateHeight)
+      window.removeEventListener('orientationchange', calculateHeight)
+    }
+  }, [isMobile])
+
+  return { gameAreaHeight, isMobile }
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 动画引擎集成示例（可选）
 // 
@@ -74,6 +129,9 @@ import RankNotification, { useRankNotification } from './RankNotification'
 export default function GameBoard({ room, players, isHost, leaveRoom, botPlayerIds: botPlayerIdsProp = [], updateScoreBoardInDB, skipLoadingAnim = false, outerLoadingDone = false, onOpeningReady, loadingScreenFaded = true, onLeaveStart, onLeaveDone }) {
   const navigate = useNavigate()
   const { user } = useAuth()
+
+  // ── 游戏区域自适应尺寸（移动端横屏）───────────────────────────
+  const { gameAreaHeight, isMobile } = useGameAreaSize()
 
   // 游戏模式：优先取 room.game_mode（数据库权威），缺失时从 localStorage 兜底
   // 防止刷新/加载竞态导致模式回退为 standard
@@ -1202,7 +1260,8 @@ useUnoBot({
     `}</style>
     
     <div 
-      className={`min-h-screen bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 p-4${skipLoadingAnim && loadingScreenFaded ? ' game-board-fadein' : ''}`}
+      className={`${isMobile ? 'h-full' : 'min-h-screen'} bg-gradient-to-br from-purple-100 via-pink-100 to-orange-100 p-4${skipLoadingAnim && loadingScreenFaded ? ' game-board-fadein' : ''}`}
+      style={isMobile ? { overflow: 'hidden' } : undefined}
     >
       {/* 离开动画已提升到 UnoRoomPage 层 */}
 
@@ -1280,7 +1339,7 @@ useUnoBot({
           - 发牌/翻牌动画在 inset-0 absolute 层中播放，相对于此游戏区域定位
           - 动画元素通过 createPortal 渲染到此容器内，zIndex 确保它们显示在游戏元素上层
         */}
-        <div className="relative w-full" style={{ height: '680px' }} ref={gameAreaRef}>
+        <div className="relative w-full" style={{ height: `${gameAreaHeight}px` }} ref={gameAreaRef}>
           {/* ── 遮罩层：游戏内容渲染时立即显示，防止游戏画面一闪而过 ── */}
           {/* 条件：showGame=true 且 openingReady=false 且 winnerId 不存在 */}
           {/* 这样遮罩会和游戏内容同时渲染，但在内容上面，确保玩家看不到闪烁 */}

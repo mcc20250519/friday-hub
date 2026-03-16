@@ -265,8 +265,8 @@ export function LandscapePrompt({ show, gameName = '游戏', accentColor = 'purp
  *
  * 功能：
  * 1. 自动在横屏时占满整个视口（100vw × 100vh）
- * 2. 禁止页面滚动，游戏内容在容器内滚动
- * 3. 提供统一的游戏布局骨架
+ * 2. 禁止页面滚动
+ * 3. 使用 CSS 变量传递视口尺寸供子组件使用
  *
  * @param {Object} props
  * @param {boolean} props.showPrompt - 是否显示横屏提示
@@ -289,28 +289,25 @@ export function LandscapeGameLayout({
       {/* 横屏提示覆盖层 */}
       <LandscapePrompt show={showPrompt} gameName={gameName} accentColor={accentColor} />
 
-      {/* 游戏容器 */}
+      {/* 游戏容器 - 移动端横屏时固定视口 */}
       <div
         className={`
-          ${isMobile ? 'landscape-game-container' : ''}
+          ${isMobile ? 'landscape-game-root' : ''}
           ${className}
         `}
-        style={{
-          // 移动端横屏：固定视口，禁止滚动
-          ...(isMobile && {
-            position: 'fixed',
-            inset: 0,
-            width: '100vw',
-            height: '100vh',
-            overflow: 'hidden',
-            overscrollBehavior: 'none',
-          }),
-        }}
+        style={isMobile ? {
+          position: 'fixed',
+          inset: 0,
+          width: '100vw',
+          height: '100vh',
+          overflow: 'hidden',
+          overscrollBehavior: 'none',
+        } : undefined}
       >
         {children}
       </div>
 
-      {/* 移动端横屏样式：锁定 body 滚动 */}
+      {/* 移动端横屏样式：锁定全局滚动，设置视口 CSS 变量 */}
       {isMobile && (
         <style>{`
           html, body {
@@ -320,10 +317,18 @@ export function LandscapeGameLayout({
             height: 100%;
             overscroll-behavior: none;
           }
-          .landscape-game-container {
-            overflow-y: auto;
-            overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
+          .landscape-game-root {
+            /* 确保内容填满整个视口 */
+            display: flex;
+            flex-direction: column;
+          }
+          .landscape-game-root > * {
+            flex-shrink: 0;
+          }
+          /* 让使用 min-h-screen 的组件也能正确适配 */
+          .landscape-game-root .min-h-screen {
+            min-height: 100vh !important;
+            height: 100vh !important;
           }
         `}</style>
       )}
@@ -365,7 +370,7 @@ export function LandscapeCardLayout({
       <div
         className={`
           min-h-screen
-          ${isMobile && isLandscape ? 'h-screen overflow-auto' : ''}
+          ${isMobile && isLandscape ? 'h-screen' : ''}
           bg-gradient-to-br from-purple-100 via-pink-50 to-orange-50
           flex items-center justify-center
           p-4
@@ -373,8 +378,9 @@ export function LandscapeCardLayout({
         style={isMobile && isLandscape ? {
           position: 'fixed',
           inset: 0,
+          overflow: 'auto',
           overscrollBehavior: 'none',
-        } : {}}
+        } : undefined}
       >
         {/* 横屏时卡片区域约束宽度 */}
         <div className={`
@@ -397,4 +403,42 @@ export function LandscapeCardLayout({
       )}
     </>
   )
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 工具函数：让游戏区域自适应横屏视口
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * 计算横屏游戏区域尺寸
+ * @param {number} viewportWidth - 视口宽度
+ * @param {number} viewportHeight - 视口高度
+ * @param {number} headerHeight - 顶部栏高度（默认 60px）
+ * @returns {{ gameAreaWidth: number, gameAreaHeight: number, scale: number }}
+ */
+export function calculateLandscapeGameSize(viewportWidth, viewportHeight, headerHeight = 60) {
+  // 可用高度 = 视口高度 - 顶部栏 - 内边距
+  const availableHeight = viewportHeight - headerHeight - 32
+  const availableWidth = viewportWidth - 32
+
+  // 游戏区域理想宽高比（UNO 桌面约为 5:3）
+  const idealRatio = 5 / 3
+
+  let gameAreaWidth, gameAreaHeight
+
+  if (availableWidth / availableHeight > idealRatio) {
+    // 高度受限
+    gameAreaHeight = availableHeight
+    gameAreaWidth = gameAreaHeight * idealRatio
+  } else {
+    // 宽度受限
+    gameAreaWidth = availableWidth
+    gameAreaHeight = gameAreaWidth / idealRatio
+  }
+
+  return {
+    gameAreaWidth,
+    gameAreaHeight,
+    scale: Math.min(gameAreaWidth / 1024, gameAreaHeight / 614), // 基准尺寸 1024×614
+  }
 }
