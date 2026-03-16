@@ -110,16 +110,21 @@ export default function Register() {
 
       // 处理常见错误
       let errorMessage = '注册失败，请稍后重试'
+      const errorStr = (error.message || '').toLowerCase()
 
-      if (error.message?.includes('already registered') ||
-          error.message?.includes('User already registered') ||
-          error.message?.includes('already exists')) {
-        errorMessage = '该邮箱已被注册，请使用其他邮箱或登录'
+      // 检查邮箱是否已被注册
+      if (errorStr.includes('already registered') ||
+          errorStr.includes('user already registered') ||
+          errorStr.includes('already exists') ||
+          errorStr.includes('duplicate') ||
+          errorStr.includes('unique') ||
+          errorStr.includes('user_already_exists')) {
+        errorMessage = '该邮箱已被注册，请使用其他邮箱或直接登录'
         setErrors((prev) => ({ ...prev, email: errorMessage }))
-      } else if (error.message?.includes('password')) {
+      } else if (errorStr.includes('password')) {
         errorMessage = '密码不符合要求，请检查密码设置'
         setErrors((prev) => ({ ...prev, password: errorMessage }))
-      } else if (error.message?.includes('email')) {
+      } else if (errorStr.includes('email')) {
         errorMessage = '邮箱格式不正确，请检查邮箱地址'
         setErrors((prev) => ({ ...prev, email: errorMessage }))
       } else {
