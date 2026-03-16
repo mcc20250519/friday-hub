@@ -1,0 +1,170 @@
+/**
+ * Mobile UNO 响应式断点样式
+ * 
+ * 定义移动端各种屏幕尺寸下的样式调整
+ */
+
+/* 基础 CSS 变量 */
+:root {
+  /* 手牌区域高度 */
+  --mobile-hand-height: 180px;
+  /* 卡牌尺寸 */
+  --mobile-card-width: 70px;
+  --mobile-card-height: 98px;
+  /* 对手区域高度 */
+  --mobile-opponent-height: 100px;
+  /* 操作按钮高度 */
+  --mobile-actions-height: 60px;
+}
+
+/* xs: 超小屏幕 (< 360px) */
+@media (max-width: 359px) {
+  :root {
+    --mobile-hand-height: 140px;
+    --mobile-card-width: 50px;
+    --mobile-card-height: 70px;
+    --mobile-opponent-height: 80px;
+    --mobile-actions-height: 50px;
+  }
+
+  .mobile-hand-cards {
+    height: 140px;
+  }
+
+  .mobile-opponent-area {
+    height: 80px;
+  }
+
+  .mobile-action-button {
+    min-width: 80px !important;
+    padding: 0.5rem 0.75rem !important;
+    font-size: 0.875rem !important;
+  }
+}
+
+/* sm: 小屏幕 (360px - 480px) */
+@media (min-width: 360px) and (max-width: 479px) {
+  :root {
+    --mobile-hand-height: 160px;
+    --mobile-card-width: 60px;
+    --mobile-card-height: 84px;
+    --mobile-opponent-height: 90px;
+    --mobile-actions-height: 55px;
+  }
+
+  .mobile-hand-cards {
+    height: 160px;
+  }
+
+  .mobile-opponent-area {
+    height: 90px;
+  }
+
+  .mobile-action-button {
+    min-width: 90px !important;
+    padding: 0.625rem 1rem !important;
+    font-size: 0.9375rem !important;
+  }
+}
+
+/* md: 中等屏幕 (480px - 640px) - 默认基准 */
+@media (min-width: 480px) and (max-width: 639px) {
+  :root {
+    --mobile-hand-height: 180px;
+    --mobile-card-width: 70px;
+    --mobile-card-height: 98px;
+    --mobile-opponent-height: 100px;
+    --mobile-actions-height: 60px;
+  }
+}
+
+/* lg: 大屏幕 (640px - 768px) */
+@media (min-width: 640px) and (max-width: 767px) {
+  :root {
+    --mobile-hand-height: 200px;
+    --mobile-card-width: 80px;
+    --mobile-card-height: 112px;
+    --mobile-opponent-height: 110px;
+    --mobile-actions-height: 65px;
+  }
+
+  .mobile-hand-cards {
+    height: 200px;
+  }
+
+  .mobile-opponent-area {
+    height: 110px;
+  }
+
+  .mobile-action-button {
+    min-width: 110px !important;
+    padding: 0.75rem 1.25rem !important;
+    font-size: 1rem !important;
+  }
+}
+
+/* xl: 超大屏幕 (> 768px) - 建议使用 PC 端 */
+@media (min-width: 768px) {
+  .mobile-device-warning {
+    display: block;
+  }
+}
+
+/* 通用移动端优化 */
+@media (max-width: 767px) {
+  /* 禁用用户选择（防止长按选中文本） */
+  .mobile-game-area {
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  /* 禁用点击高亮 */
+  .mobile-game-area * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* 触摸友好的最小触摸目标 */
+  .mobile-touch-target {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* 隐藏滚动条 */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* 平滑滚动 */
+  .smooth-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* 横屏模式调整 */
+@media (max-width: 767px) and (orientation: landscape) {
+  :root {
+    --mobile-hand-height: 140px;
+    --mobile-opponent-height: 70px;
+    --mobile-actions-height: 50px;
+  }
+
+  .mobile-hand-cards {
+    height: 140px;
+  }
+
+  .mobile-opponent-area {
+    height: 70px;
+  }
+
+  .mobile-game-header {
+    padding: 0.5rem 1rem !important;
+  }
+}

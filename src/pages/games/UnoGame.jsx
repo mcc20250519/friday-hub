@@ -26,6 +26,8 @@ import GameBoard from '@/components/uno/game/GameBoard'
 import UnoLoadingScreen from '@/components/uno/game/UnoLoadingScreen'
 import ExitAnimation from '@/components/uno/shared/ExitAnimation'
 import { useLandscapeMode, LandscapeGameLayout, LandscapeCardLayout } from '@/components/common/LandscapeMode'
+import { useIsMobile } from '@/hooks/mobile/useIsMobile'
+import MobileUnoGame from '@/components/uno/mobile/MobileUnoGame'
 
 export default function UnoGame() {
   const { roomCode } = useParams()
@@ -67,6 +69,9 @@ export default function UnoGame() {
 function UnoRoomPage({ roomCode }) {
   const navigate = useNavigate()
   const { user } = useAuth()
+  
+  // 检测是否为移动设备
+  const isMobileDevice = useIsMobile()
 
   const [joinAttempted, setJoinAttempted] = useState(false)
   const [addingBot, setAddingBot] = useState(false)
@@ -357,6 +362,11 @@ function UnoRoomPage({ roomCode }) {
         </Card>
       </div>
     )
+  }
+
+  // ── 移动端：路由到移动端专用组件 ───────────────────────────
+  if (isMobileDevice) {
+    return <MobileUnoGame roomCode={roomCode} />
   }
 
   // ── 统一 return：UnoLoadingScreen 与内容层共存，避免重挂载 ───
