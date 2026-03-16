@@ -30,7 +30,8 @@ function getAvatarColor(userId) {
  */
 function OpponentCard({ opponent, isCurrentPlayer, position }) {
   const avatarColor = getAvatarColor(opponent.user_id)
-  const displayName = opponent.nickname || opponent.username || '玩家'
+  // 优先从 profiles 对象中读取，Bot 和真实玩家都在 profiles 里
+  const displayName = opponent.profiles?.nickname || opponent.profiles?.username || '玩家'
   const cardCount = opponent.card_count || 0
 
   return (

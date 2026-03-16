@@ -151,25 +151,25 @@ export default function MobileGameBoard({
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-purple-100 to-pink-100">
+    <div className="h-screen flex flex-col bg-gradient-to-br from-purple-100 to-pink-100">
       {/* Header - 顶部栏 */}
-      <header className="flex items-center justify-between px-4 py-3 bg-white shadow-md">
+      <header className="flex-shrink-0 flex items-center justify-between px-4 py-2 bg-white shadow-sm">
         <Button
           variant="ghost"
           size="sm"
           onClick={onLeave}
-          className="flex items-center gap-2"
+          className="flex items-center gap-1 h-8"
         >
           <ArrowLeft className="w-4 h-4" />
-          离开
+          <span className="text-sm">离开</span>
         </Button>
         
         <div className="text-center flex-1">
-          <div className="font-semibold text-gray-900">
-            {room?.name || 'UNO 游戏'}
+          <div className="text-sm font-semibold text-gray-900">
+            UNO 游戏
           </div>
           <div className="text-xs text-gray-500">
-            {isMyTurn ? '轮到你了!' : '等待其他玩家...'}
+            {isMyTurn ? '🎯 轮到你了!' : '⏳ 等待中...'}
           </div>
         </div>
 
@@ -177,13 +177,14 @@ export default function MobileGameBoard({
           variant="ghost"
           size="sm"
           onClick={() => setShowMenu(!showMenu)}
+          className="h-8 w-8 p-0"
         >
           <MoreVertical className="w-4 h-4" />
         </Button>
       </header>
 
-      {/* Opponent Area - 对手信息区 */}
-      <div className="px-4 py-3 bg-white border-b">
+      {/* Opponent Area - 对手信息区（紧凑） */}
+      <div className="flex-shrink-0 px-3 py-2 bg-white border-b">
         <MobileOpponentArea
           opponents={opponents}
           currentPlayerId={currentPlayerId}
@@ -191,61 +192,62 @@ export default function MobileGameBoard({
         />
       </div>
 
-      {/* Main Game Area - 主游戏区 */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-6 relative">
+      {/* Main Game Area - 主游戏区（弹性增长） */}
+      <div className="flex-1 flex flex-col items-center justify-center px-4 py-4 min-h-0">
         {/* 弃牌堆 */}
-        <div className="mb-6">
+        <div className="mb-4">
           <MobileCard
             card={gameState.topCard}
-            width={80}
-            height={112}
+            width={90}
+            height={126}
           />
           {gameState.currentColor && gameState.currentColor !== gameState.topCard?.color && (
-            <div className="mt-2 text-center text-sm font-medium">
-              当前花色: {COLOR_NAMES[gameState.currentColor] || gameState.currentColor}
+            <div className="mt-2 text-center text-sm font-semibold text-gray-700">
+              当前花色: <span className="text-purple-600">{COLOR_NAMES[gameState.currentColor] || gameState.currentColor}</span>
             </div>
           )}
         </div>
 
+        {/* 提示信息 */}
+        {gameState.pendingDrawCount > 0 && (
+          <div className="mb-3 bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm font-medium">
+            ⚠️ 需要抽 {gameState.pendingDrawCount} 张牌
+          </div>
+        )}
+
         {/* 操作按钮 */}
-        <div className="flex gap-3 mb-4">
+        <div className="flex gap-2">
           <Button
             onClick={handleDrawCard}
             disabled={!isMyTurn || disabled || actionLoading}
-            className="min-w-[100px]"
+            className="px-6 py-2 h-10 text-sm"
+            variant="outline"
           >
-            抽牌
+            🎴 抽牌
           </Button>
           
           <Button
             onClick={() => handlePlayCard()}
             disabled={!isMyTurn || disabled || actionLoading || selectedCards.length === 0}
-            className="min-w-[100px] bg-purple-600 hover:bg-purple-700"
+            className="px-6 py-2 h-10 text-sm bg-purple-600 hover:bg-purple-700"
           >
-            出牌
+            ▶️ 出牌
           </Button>
           
           {myHand.length === 1 && (
             <Button
               onClick={handleCallUno}
               disabled={disabled || actionLoading}
-              className="min-w-[80px] bg-red-600 hover:bg-red-700"
+              className="px-4 py-2 h-10 text-sm bg-red-600 hover:bg-red-700 font-bold"
             >
               UNO!
             </Button>
           )}
         </div>
-
-        {/* 提示信息 */}
-        {gameState.pendingDrawCount > 0 && (
-          <div className="bg-red-100 text-red-700 px-4 py-2 rounded-lg text-sm">
-            需要抽 {gameState.pendingDrawCount} 张牌
-          </div>
-        )}
       </div>
 
-      {/* Hand Cards - 手牌区 */}
-      <div className="bg-white border-t shadow-lg">
+      {/* Hand Cards - 手牌区（固定底部） */}
+      <div className="flex-shrink-0 bg-white border-t shadow-lg">
         <MobileHandCards
           cards={myHand}
           selectedCards={selectedCards}
@@ -253,7 +255,6 @@ export default function MobileGameBoard({
           currentColor={gameState.currentColor}
           onSelectCard={handleSelectCard}
           disabled={!isMyTurn || disabled}
-          containerHeight={180}
         />
       </div>
 
