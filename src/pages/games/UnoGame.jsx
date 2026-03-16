@@ -25,7 +25,7 @@ import RoomLobby from '@/components/uno/lobby/RoomLobby'
 import GameBoard from '@/components/uno/game/GameBoard'
 import UnoLoadingScreen from '@/components/uno/game/UnoLoadingScreen'
 import ExitAnimation from '@/components/uno/shared/ExitAnimation'
-import useLandscapeMode, { LandscapePrompt } from '@/hooks/uno/useLandscapeMode'
+import useLandscapeMode, { LandscapePrompt } from '@/hooks/uno/useLandscapeMode.jsx'
 
 export default function UnoGame() {
   const { roomCode } = useParams()
