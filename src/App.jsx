@@ -16,6 +16,7 @@ import UnoGame from '@/pages/games/UnoGame'
 import Profile from '@/pages/Profile'
 import Login from '@/pages/Login'
 import Register from '@/pages/Register'
+import VerifyEmail from '@/pages/VerifyEmail'
 import ForgotPassword from '@/pages/ForgotPassword'
 import About from '@/pages/About'
 import NotFound from '@/pages/NotFound'
@@ -46,6 +47,7 @@ export default function App() {
               {/* 认证相关路由 */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
 
               {/* 受保护路由 - 需要登录 */}

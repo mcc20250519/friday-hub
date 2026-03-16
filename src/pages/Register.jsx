@@ -98,7 +98,9 @@ export default function Register() {
     setLoading(true)
 
     try {
-      await signUp(formData.email, formData.password)
+      await signUp(formData.email, formData.password, {
+        emailRedirectTo: `${window.location.origin}/verify-email`,
+      })
 
       // 注册成功，显示验证提示
       setIsRegistered(true)
