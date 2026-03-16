@@ -93,12 +93,13 @@ export function useUnoRoom(roomCode) {
     // 从 localStorage 获取 Bot profile
     const botMap = JSON.parse(localStorage.getItem('uno_bots') || '{}')
 
-    // 组合数据：为每个玩家附加 profile
+    // 组合数据：为每个玩家附加 profile 和 isBot 标记
     return playersData.map((player) => {
-      const isBot = botMap[player.user_id]
+      const botProfile = botMap[player.user_id]
       return {
         ...player,
-        profiles: isBot ? botMap[player.user_id] : (profilesMap[player.user_id] || null),
+        profiles: botProfile ? botProfile : (profilesMap[player.user_id] || null),
+        isBot: !!botProfile,
       }
     })
   }, [])
@@ -370,26 +371,30 @@ export function useUnoRoom(roomCode) {
     setLoading(true)
 
     try {
+      // 删除自己
       await supabase
         .from('uno_players')
         .delete()
         .eq('room_id', room.id)
         .eq('user_id', user.id)
 
-      // 如果房主离开且还有其他玩家，转让房主（取 seat_index 最小的）
-      if (room.host_id === user.id && players.length > 1) {
-        const nextHost = players.find((p) => p.user_id !== user.id)
-        if (nextHost) {
-          await supabase
-            .from('uno_rooms')
-            .update({ host_id: nextHost.user_id })
-            .eq('id', room.id)
-        }
-      }
+      // 统计删除自己后还剩多少真实玩家
+      const realPlayersRemaining = players.filter(
+        (p) => p.user_id !== user.id && !p.isBot
+      )
 
-      // 如果只剩房主自己，删除房间
-      if (players.length <= 1) {
+      if (realPlayersRemaining.length === 0) {
+        // 没有真实玩家了：直接删除整个房间（级联清理所有关联数据）
         await supabase.from('uno_rooms').delete().eq('id', room.id)
+      } else if (room.host_id === user.id) {
+        // 房主离开但还有其他真实玩家：转让房主（取 seat_index 最小的真实玩家）
+        const nextHost = realPlayersRemaining.reduce((a, b) =>
+          a.seat_index < b.seat_index ? a : b
+        )
+        await supabase
+          .from('uno_rooms')
+          .update({ host_id: nextHost.user_id })
+          .eq('id', room.id)
       }
 
       unsubscribeFromRoom()
