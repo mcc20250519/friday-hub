@@ -33,6 +33,7 @@ export default function UnoGame() {
   const { roomCode } = useParams()
   const navigate = useNavigate()
   const { user, loading: authLoading } = useAuth()
+  const isMobileDevice = useIsMobile()
 
   // ── 未登录处理 ───────────────────────────────────────────────
 
@@ -45,7 +46,7 @@ export default function UnoGame() {
   }
 
   if (!user) {
-    // 跳转到登录页，携带当前路径作为 redirect
+    // 跳转到登录页,携带当前路径作为 redirect
     const currentPath = roomCode
       ? `/games/uno/room/${roomCode}`
       : '/games/uno'
@@ -54,6 +55,11 @@ export default function UnoGame() {
   }
 
   // ── 已登录 ─────────────────────────────────────────────────
+
+  // 移动端：路由到移动端专用组件
+  if (isMobileDevice && roomCode) {
+    return <MobileUnoGame roomCode={roomCode} />
+  }
 
   return roomCode ? (
     <UnoRoomPage roomCode={roomCode} />
@@ -69,9 +75,6 @@ export default function UnoGame() {
 function UnoRoomPage({ roomCode }) {
   const navigate = useNavigate()
   const { user } = useAuth()
-  
-  // 检测是否为移动设备
-  const isMobileDevice = useIsMobile()
 
   const [joinAttempted, setJoinAttempted] = useState(false)
   const [addingBot, setAddingBot] = useState(false)
@@ -362,11 +365,6 @@ function UnoRoomPage({ roomCode }) {
         </Card>
       </div>
     )
-  }
-
-  // ── 移动端：路由到移动端专用组件 ───────────────────────────
-  if (isMobileDevice) {
-    return <MobileUnoGame roomCode={roomCode} />
   }
 
   // ── 统一 return：UnoLoadingScreen 与内容层共存，避免重挂载 ───
