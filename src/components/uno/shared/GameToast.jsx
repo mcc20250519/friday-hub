@@ -105,7 +105,7 @@ export function useGameToast() {
       show({
         type: 'draw',
         icon: '🃏',
-        title: `${playerName} 需要摸 ${count} 张牌`,
+        title: `${playerName} 哎呀，需要摸 ${count} 张牌`,
         duration: 3000,
       }),
     [show]
@@ -116,7 +116,7 @@ export function useGameToast() {
       show({
         type: 'skip',
         icon: '🚫',
-        title: `${playerName} 的回合被跳过`,
+        title: `${playerName} 被跳过了！`,
         duration: 2500,
       }),
     [show]
@@ -127,7 +127,7 @@ export function useGameToast() {
       show({
         type: 'reverse',
         icon: '🔄',
-        title: '游戏方向改变',
+        title: '反转！方向变啦',
         duration: 2000,
       }),
     [show]

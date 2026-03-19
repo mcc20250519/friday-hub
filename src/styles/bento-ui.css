@@ -1,0 +1,144 @@
+/* ==========================================
+   Bento Box UI System — Non-destructive Injection
+   Friday Hub 全局视觉注入
+   精准作用于页面级卡片，完全不干涉 UNO 游戏组件
+   ========================================== */
+
+/* ── 1. 设计变量 ─────────────────────────────────────── */
+:root {
+  /* 温暖简约色系 */
+  --bento-bg:           #F7F6F3;   /* 米白背景 */
+  --bento-card-bg:      #FFFFFF;   /* 卡片白 */
+  --bento-border:       #E9E3DB;   /* 温暖边框 */
+  --bento-text:         #3D3530;   /* 深棕文字（替代纯黑） */
+  --bento-sub:          #8A7E77;   /* 中性暖灰 */
+  --bento-accent:       #C8602A;   /* 暖橙强调 */
+  --bento-tag-bg:       #F2EDE8;   /* 标签背景 */
+  --bento-radius:       16px;
+  --bento-shadow:       0 1px 8px rgba(61, 53, 48, 0.06);
+  --bento-shadow-hover: 0 6px 24px rgba(61, 53, 48, 0.10);
+  --spring:             0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+/* ── 2. 安全隔离：游戏区域完全不干涉 ───────────────────── */
+[data-game-zone] * {
+  /* 不施加任何 Bento 覆盖 */
+}
+
+/* ── 3. 页面背景（仅浅色背景页） ────────────────────────── */
+.min-h-screen.bg-gray-50:not([data-game-zone]),
+.min-h-screen.bg-white:not([data-game-zone]) {
+  background-color: var(--bento-bg) !important;
+}
+
+/* ── 4A. 工具卡片链接（Home / Tools / ToolDetail） ──── */
+a.group[href*="/tools/"]:not([data-game-zone] *) {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background-color: var(--bento-card-bg) !important;
+  border-radius: var(--bento-radius) !important;
+  box-shadow: var(--bento-shadow) !important;
+  border: 1px solid var(--bento-border) !important;
+  transition: transform var(--spring), box-shadow var(--spring) !important;
+  /* 消除切换页面时的闪烁：不使用 will-change，避免合成层抖动 */
+}
+
+a.group[href*="/tools/"]:not([data-game-zone] *):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--bento-shadow-hover) !important;
+}
+
+/* ── 4B. Games 广场页面卡片 ─────────────────────────── */
+.max-w-6xl > div .overflow-hidden.transition-all:not([data-game-zone] *) {
+  background-color: var(--bento-card-bg) !important;
+  border-radius: var(--bento-radius) !important;
+  box-shadow: var(--bento-shadow) !important;
+  border: 1px solid var(--bento-border) !important;
+}
+
+.max-w-6xl > div .overflow-hidden.transition-all:not([data-game-zone] *):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--bento-shadow-hover) !important;
+}
+
+/* ── 4C. Tools 工具库页面卡片 ───────────────────────── */
+section.max-w-7xl .h-full.overflow-hidden:not([data-game-zone] *) {
+  background-color: var(--bento-card-bg) !important;
+  border-radius: var(--bento-radius) !important;
+  box-shadow: var(--bento-shadow) !important;
+  border: 1px solid var(--bento-border) !important;
+  transition: transform var(--spring), box-shadow var(--spring) !important;
+}
+
+section.max-w-7xl .h-full.overflow-hidden:not([data-game-zone] *):hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--bento-shadow-hover) !important;
+}
+
+/* ── 4D. About / PartyGame 页面 Card ────────────────── */
+.max-w-3xl.mx-auto .overflow-hidden:not([data-game-zone] *),
+.max-w-4xl.mx-auto .overflow-hidden:not([data-game-zone] *) {
+  background-color: var(--bento-card-bg) !important;
+  border-radius: var(--bento-radius) !important;
+  box-shadow: var(--bento-shadow) !important;
+  border: 1px solid var(--bento-border) !important;
+}
+
+/* ── 5. Hover Spotlight（JS 注入 --mouse-x / --mouse-y）─ */
+.bento-spotlight {
+  position: relative;
+  isolation: isolate;
+}
+
+.bento-spotlight::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    360px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(120, 100, 60, 0.04),
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 2;
+  border-radius: inherit;
+}
+
+.bento-spotlight:hover::after {
+  opacity: 1;
+}
+
+/* ── 6. 级联显现动画 Staggered Fade-in ──────────────────
+   关键修复：只对已明确打标记的元素触发动画
+   初始状态仅设置 opacity，不做 transform，避免切换时抖动
+   ─────────────────────────────────────────────────── */
+.bento-fade-init {
+  opacity: 0;
+}
+
+.bento-fade-in {
+  opacity: 1 !important;
+  transition: opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+/* ── 7. 全局滚动条美化 ──────────────────────────────── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.10);
+  border-radius: 99px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.20);
+}

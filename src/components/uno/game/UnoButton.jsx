@@ -32,6 +32,7 @@ export const UNO_BUTTON_STATE = {
  * @param {boolean} props.hasCalledUno - 本轮是否已喊UNO
  * @param {boolean} props.unoWindowOpen - UNO窗口是否开启
  * @param {boolean} props.interactionLocked - 全局交互锁
+ * @param {boolean} props.isFinished - 是否已出完牌（娱乐模式）
  * @param {Function} props.onCallUno - 喊UNO回调
  * @param {Function} props.onPenalty - 误触惩罚回调（摸2张牌）
  */
@@ -41,6 +42,7 @@ export default function UnoButton({
   hasCalledUno = false,
   unoWindowOpen = false,
   interactionLocked = false,
+  isFinished = false,
   onCallUno,
   onPenalty,
 }) {
@@ -51,6 +53,8 @@ export default function UnoButton({
 
   // 计算按钮当前状态
   const getButtonState = useCallback(() => {
+    // 已出完牌（娱乐模式）→ 锁定态
+    if (isFinished) return UNO_BUTTON_STATE.LOCKED
     // 锁定态优先
     if (interactionLocked) return UNO_BUTTON_STATE.LOCKED
     // 已喊过 UNO
@@ -61,7 +65,7 @@ export default function UnoButton({
     if (unoWindowOpen) return UNO_BUTTON_STATE.CLICKABLE
     // 其他情况为常态
     return UNO_BUTTON_STATE.NORMAL
-  }, [interactionLocked, hasCalledUno, unoWindowOpen])
+  }, [isFinished, interactionLocked, hasCalledUno, unoWindowOpen])
 
   const buttonState = getButtonState()
 
@@ -77,6 +81,8 @@ export default function UnoButton({
 
   // 点击处理
   const handleClick = useCallback(() => {
+    // 已出完牌（娱乐模式）→ 不响应
+    if (isFinished) return
     // 锁定态不响应
     if (interactionLocked) return
 
@@ -91,14 +97,15 @@ export default function UnoButton({
 
     // 窗口未开启 → 根据手牌数判断
     if (handCount >= 2) {
-      triggerShake('手牌不止1张！罚摸2张')
+      triggerShake('哎呀，手牌不止1张！罚摸2张')
       onPenalty?.(2)
       return
     }
 
     // 手牌 = 0 或 1 但窗口未开启
-    triggerShake('UNO窗口已关闭')
+    triggerShake('哎呀，喊晚了！')
   }, [
+    isFinished,
     interactionLocked,
     hasCalledUno,
     handCount,

@@ -112,6 +112,8 @@ function UnoRoomPage({ roomCode }) {
     updateScoreBoardInDB,
     loading,
     error,
+    roomClosedReason,
+    clearRoomClosedReason,
   } = useUnoRoom(roomCode)
 
   // ── 手机端横屏锁定：只在游戏阶段启用 ─────────────────────────────────────
@@ -125,6 +127,18 @@ function UnoRoomPage({ roomCode }) {
       navigate('/games')
     }
   }, [leaveDone, navigate])
+
+  // 监听房间关闭原因 → 显示提示
+  useEffect(() => {
+    if (roomClosedReason === 'host_left') {
+      toast.warning('房主已离开', '游戏已结束，即将返回大厅')
+      // 3 秒后自动跳转
+      setTimeout(() => navigate('/games'), 3000)
+    } else if (roomClosedReason === 'room_deleted') {
+      toast.error('房间已关闭', '房间已被删除，即将返回大厅')
+      setTimeout(() => navigate('/games'), 2000)
+    }
+  }, [roomClosedReason, navigate])
 
   // handleLeaveRoom：LeaveAnimation 调用的实际离开函数（必须在 useUnoRoom 之后定义）
   const handleLeaveRoom = async () => {
@@ -354,7 +368,7 @@ function UnoRoomPage({ roomCode }) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <Card className="p-8 text-center max-w-md w-full">
           <div className="text-6xl mb-4">😵</div>
-          <h2 className="text-xl font-bold text-gray-800 mb-2">加入失败</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-2">哎呀，进不去房间</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <Button
             onClick={() => navigate('/games')}
@@ -381,8 +395,8 @@ function UnoRoomPage({ roomCode }) {
         <UnoLoadingScreen
           loadingText={
             gameStarting
-              ? '游戏启动中...'
-              : `正在进入房间 ${roomCode}...`
+              ? '正在洗牌，马上开局...'
+              : `正在推开房间 ${roomCode} 的大门...`
           }
           // gameStarting 模式：数据已就绪（GameBoard 已提前挂载）立即冲刺
           // 正常进入模式：等 isRoomReady 后冲刺
@@ -601,17 +615,17 @@ function UnoHomePage() {
         <div className="text-center">
           <div className="text-7xl mb-4">🃏</div>
           <h1 className="text-4xl font-bold text-gray-800 mb-2">UNO</h1>
-          <p className="text-gray-500">邀请朋友一起玩 UNO！</p>
+          <p className="text-gray-500">快来和朋友们一起欢乐 UNO 吧！</p>
         </div>
 
         {/* 创建房间 */}
         <Card className="p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <Plus className="h-5 w-5 text-purple-600" />
-            创建新房间
+            开启新对局
           </h2>
           <p className="text-sm text-gray-500 mb-4">
-            创建房间后，将邀请链接发给朋友，支持 2-10 人游玩
+            建个房间，把链接甩给朋友们，2-10 人都能玩！
           </p>
           <Button
             onClick={() => setShowPlayerSelect(true)}
@@ -626,7 +640,7 @@ function UnoHomePage() {
         <Card className="p-6">
           <h2 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
             <Link className="h-5 w-5 text-blue-600" />
-            加入已有房间
+            加入好友的房间
           </h2>
           <div className="flex gap-2">
             <Input

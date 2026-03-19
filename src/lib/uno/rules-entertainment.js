@@ -110,8 +110,9 @@ function countActivePlayers(playerIds, hands, rankList) {
  * @param {Object} state   当前状态（包含 rankList）
  * @param {Object} action  { type, userId, card?, chosenColor? }
  * @param {Array}  playerIds 按座位顺序的玩家 ID 数组
+ * @param {Object} [options] { scoringMode } - 积分模式，影响游戏结束判定
  */
-export function getNextStateEntertainment(state, action, playerIds) {
+export function getNextStateEntertainment(state, action, playerIds, options = {}) {
   const {
     currentPlayerIndex,
     direction,
@@ -131,6 +132,7 @@ export function getNextStateEntertainment(state, action, playerIds) {
 
   const { type, userId, card, chosenColor } = action
   const playerCount = playerIds.length
+  const { scoringMode } = options  // 积分模式：'basic' 或 'ranking'
 
   if (playerIds[currentPlayerIndex] !== userId) {
     throw new Error('不是你的回合')
@@ -198,7 +200,17 @@ export function getNextStateEntertainment(state, action, playerIds) {
         ns.reportedThisWindow = []
 
         // 检查游戏是否结束
+        // 基础模式（scoringMode === 'basic'）：第一名产生后立即结束
+        // 排名模式（scoringMode === 'ranking'）：继续游戏直到决出所有名次
         const remaining = countActivePlayers(playerIds, ns.hands, ns.rankList)
+
+        // 基础模式：第一名产生后立即结束游戏
+        if (scoringMode === 'basic' && ns.rankList.length >= 1) {
+          ns.winnerId = ns.rankList[0]
+          return ns
+        }
+
+        // 排名模式或未指定模式：继续游戏直到只剩 1 人
         if (remaining <= 1) {
           // 找出最后剩余的玩家，加入末位
           const lastPlayer = playerIds.find(

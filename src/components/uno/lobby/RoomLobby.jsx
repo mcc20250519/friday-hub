@@ -120,14 +120,14 @@ export default function RoomLobby({
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
             UNO 游戏大厅
           </h1>
-          <p className="text-gray-500">等待玩家加入...</p>
+          <p className="text-gray-500">快叫小伙伴们上车！</p>
         </div>
 
         {/* 游戏模式选择卡片（房主可改，开始游戏后隐藏防止闪烁） */}
         {isHost && !starting && (
           <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
             <div className="mb-3 flex items-center gap-2">
-              <span className="font-semibold text-gray-800">📋 选择游戏模式</span>
+              <span className="font-semibold text-gray-800">📋 挑个玩法</span>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {Object.entries(GAME_MODE_INFO).map(([mode, info]) => (
@@ -259,7 +259,7 @@ export default function RoomLobby({
               >
                 <>
                   <LogOut className="h-5 w-5 mr-2" />
-                  {leaving ? '准备离开...' : '离开'}
+                  {leaving ? '正在开溜...' : '溜了溜了'}
                 </>
               </Button>
             </div>
@@ -268,7 +268,7 @@ export default function RoomLobby({
             {isHost && players.length < MIN_PLAYERS && (
               <div className="mt-4 space-y-2">
                 <div className="p-3 bg-orange-50 border border-orange-200 rounded-lg text-sm text-orange-700">
-                  ⚠️ 至少需要 {MIN_PLAYERS} 名玩家才能开始游戏，快邀请朋友加入吧！
+                  ⚠️ 人不够呀，至少得 {MIN_PLAYERS} 个人才能开局，快去摇人！
                 </div>
                 {handleAddBot && (
                   <div className="flex gap-2">

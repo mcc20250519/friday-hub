@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Loader2, Mail, ArrowLeft, CheckCircle, Clock } from 'lucide-react'
+import BackButton from '@/components/common/BackButton'
 
 export default function ForgotPassword() {
   // 表单状态
@@ -180,13 +181,13 @@ export default function ForgotPassword() {
 
             {/* 返回登录 */}
             <div className="mt-6 pt-6 border-t border-gray-200">
-              <Link
+              <BackButton
                 to="/login"
+                variant="link"
                 className="inline-flex items-center text-sm text-purple-600 hover:text-purple-500 transition-colors"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
                 返回登录
-              </Link>
+              </BackButton>
             </div>
           </CardContent>
         </Card>
@@ -264,13 +265,13 @@ export default function ForgotPassword() {
 
           {/* 返回登录 */}
           <div className="mt-6 text-center">
-            <Link
+            <BackButton
               to="/login"
+              variant="link"
               className="inline-flex items-center text-sm text-purple-600 hover:text-purple-500 transition-colors"
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
               返回登录
-            </Link>
+            </BackButton>
           </div>
         </CardContent>
       </Card>

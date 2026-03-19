@@ -40,6 +40,8 @@ export function useUnoRoom(roomCode) {
   const [players, setPlayers] = useState([]) // 含 profile 信息的玩家列表
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  // 房间关闭原因（房主离开、房间被删除等）
+  const [roomClosedReason, setRoomClosedReason] = useState(null)
 
   // 避免重复订阅
   const channelRef = useRef(null)
@@ -163,8 +165,17 @@ export function useUnoRoom(roomCode) {
         },
         (payload) => {
           if (payload.eventType === 'UPDATE') {
+            // 检查是否房主变更（房主离开）
+            const oldHostId = room?.host_id
+            const newHostId = payload.new?.host_id
+            if (oldHostId && newHostId && oldHostId !== newHostId) {
+              // 房主已变更，设置提示
+              setRoomClosedReason('host_left')
+            }
             setRoom(payload.new)
           } else if (payload.eventType === 'DELETE') {
+            // 房间被删除
+            setRoomClosedReason('room_deleted')
             setRoom(null)
           }
         }
@@ -318,7 +329,7 @@ export function useUnoRoom(roomCode) {
       const alreadyIn = existingPlayers.some((p) => p.user_id === user.id)
 
       if (alreadyIn) {
-        // 已在房间，直接加载状态（支持断线重连）
+        // 已在房间，直接加载状态（支持断线重连，游戏进行中也可以重连）
         setRoom(targetRoom)
         setPlayers(existingPlayers)
         subscribeToRoom(targetRoom.id)
@@ -371,6 +382,14 @@ export function useUnoRoom(roomCode) {
     setLoading(true)
 
     try {
+      // 房主离开时，先设置房间状态为关闭（通知其他玩家）
+      const isHostLeaving = room.host_id === user.id
+
+      // 统计删除自己后还剩多少真实玩家
+      const realPlayersRemaining = players.filter(
+        (p) => p.user_id !== user.id && !p.isBot
+      )
+
       // 删除自己
       await supabase
         .from('uno_players')
@@ -378,28 +397,50 @@ export function useUnoRoom(roomCode) {
         .eq('room_id', room.id)
         .eq('user_id', user.id)
 
-      // 统计删除自己后还剩多少真实玩家
-      const realPlayersRemaining = players.filter(
-        (p) => p.user_id !== user.id && !p.isBot
-      )
-
       if (realPlayersRemaining.length === 0) {
         // 没有真实玩家了：直接删除整个房间（级联清理所有关联数据）
         await supabase.from('uno_rooms').delete().eq('id', room.id)
-      } else if (room.host_id === user.id) {
-        // 房主离开但还有其他真实玩家：转让房主（取 seat_index 最小的真实玩家）
+      } else if (isHostLeaving) {
+        // 房主离开但还有其他真实玩家：
+        // 1. 先更新房间状态为 closed，触发其他玩家的通知
+        // 2. 然后转让房主
         const nextHost = realPlayersRemaining.reduce((a, b) =>
           a.seat_index < b.seat_index ? a : b
         )
         await supabase
           .from('uno_rooms')
-          .update({ host_id: nextHost.user_id })
+          .update({
+            host_id: nextHost.user_id,
+            // 如果游戏正在进行，设置特殊状态让其他玩家知道房主已离开
+            ...(room.status === 'playing' ? { status: 'finished' } : {})
+          })
           .eq('id', room.id)
+
+        // 如果游戏正在进行，设置 winner_id 让游戏结束逻辑正常触发
+        if (room.status === 'playing') {
+          // 获取当前游戏状态
+          const { data: gameState } = await supabase
+            .from('uno_game_state')
+            .select('winner_id')
+            .eq('room_id', room.id)
+            .single()
+
+          // 如果游戏还没结束（没有 winner_id），设置剩余玩家为获胜者
+          if (gameState && !gameState.winner_id) {
+            // 找到剩余玩家中第一个作为"获胜者"（实际是游戏因房主离开而终止）
+            await supabase
+              .from('uno_game_state')
+              .update({ winner_id: nextHost.user_id })
+              .eq('room_id', room.id)
+          }
+        }
       }
 
       unsubscribeFromRoom()
       setRoom(null)
       setPlayers([])
+      // 自己主动离开时不设置关闭原因
+      setRoomClosedReason(null)
     } catch (err) {
       setError(err.message || '离开房间失败')
     } finally {
@@ -481,5 +522,7 @@ export function useUnoRoom(roomCode) {
     loading,
     error,
     setError,
+    roomClosedReason,
+    clearRoomClosedReason: () => setRoomClosedReason(null),
   }
 }

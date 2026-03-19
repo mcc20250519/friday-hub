@@ -67,7 +67,7 @@ export function mustDraw(
  * @param {Object} gameState  当前状态
  * @param {Object} action     { type, userId, card?, chosenColor? }
  * @param {Array}  playerIds  玩家 ID 数组（按座位顺序）
- * @param {Object} [options]  { gameMode }
+ * @param {Object} [options]  { gameMode, scoringMode }
  */
 export function getNextState(
   gameState,
@@ -78,7 +78,7 @@ export function getNextState(
   const gameMode = options.gameMode || gameState.gameMode || GAME_MODES.STANDARD
 
   if (gameMode === GAME_MODES.ENTERTAINMENT) {
-    return getNextStateEntertainment(gameState, action, playerIds)
+    return getNextStateEntertainment(gameState, action, playerIds, options)
   }
   return getNextStateOfficial(gameState, action, playerIds)
 }

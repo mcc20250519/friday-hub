@@ -34,7 +34,7 @@ import {
 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 
-// AI 服务商选项
+// 智能服务商选项
 const AI_PROVIDERS = [
   { value: 'openai', label: 'OpenAI (gpt-3.5-turbo)', model: 'gpt-3.5-turbo' },
   { value: 'claude', label: 'Claude (claude-3-haiku)', model: 'claude-3-haiku' },
@@ -224,17 +224,17 @@ function SetupStep({ onStartGame }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-purple-500" />
-            配置 AI
+            配置智能引擎
           </CardTitle>
-          <CardDescription>选择 AI 服务商并配置 API Key</CardDescription>
+          <CardDescription>选择智能服务商并配置 API Key</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {/* AI 服务商选择 */}
+          {/* 智能服务商选择 */}
           <div className="space-y-2">
-            <Label>AI 服务商</Label>
+            <Label>智能服务商</Label>
             <Select value={provider} onValueChange={setProvider}>
               <SelectTrigger>
-                <SelectValue placeholder="选择 AI 服务商" />
+                <SelectValue placeholder="选择智能服务商" />
               </SelectTrigger>
               <SelectContent>
                 {AI_PROVIDERS.map((p) => (
@@ -306,7 +306,7 @@ function SetupStep({ onStartGame }) {
             <div className="flex items-center gap-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
               <Check className="h-5 w-5 text-orange-500" />
               <span className="font-medium">你说我猜</span>
-              <span className="text-sm text-gray-500 ml-2">（经典玩法，AI 实时出题）</span>
+              <span className="text-sm text-gray-500 ml-2">（经典玩法，智能实时出题）</span>
             </div>
           </div>
 
@@ -636,7 +636,7 @@ function PlayingStep({ config, onGameEnd }) {
     return (
       <div className="max-w-4xl mx-auto text-center py-20">
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-orange-500 mx-auto mb-6"></div>
-        <h2 className="text-2xl font-bold mb-2">AI 正在出题中...</h2>
+        <h2 className="text-2xl font-bold mb-2">智能引擎正在出题中...</h2>
         <p className="text-gray-500">根据您选择的主题生成题目</p>
       </div>
     )
@@ -991,7 +991,7 @@ function ResultStep({ result, config, onPlayAgain, onChangeGame }) {
       .map((item, i) => `${medals[i]} 玩家${item.index + 1}: ${item.score}分`)
       .join('\n')
     
-    return `我们刚刚玩了AI你说我猜！
+    return `我们刚刚玩了智能你说我猜！
 
 ${scoreLines}
 
@@ -1180,8 +1180,8 @@ export default function PartyGame() {
       <div className="max-w-4xl mx-auto">
         {/* 页面标题 */}
         <div className="text-center mb-4 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">AI桌游聚会游戏</h1>
-          <p className="text-sm sm:text-base text-gray-500">你说我猜 · AI实时出题</p>
+          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-1 sm:mb-2">欢乐桌游聚会游戏</h1>
+          <p className="text-sm sm:text-base text-gray-500">你说我猜 · 智能实时出题</p>
         </div>
 
         {/* 步骤指示器 */}

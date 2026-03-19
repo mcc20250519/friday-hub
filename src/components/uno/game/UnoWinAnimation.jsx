@@ -122,16 +122,16 @@ export default function UnoWinAnimation({ winnerName, rank, totalPlayers, onComp
 
   // 主文字
   const mainText = isFirst
-    ? `${winnerName} WIN!`
+    ? `${winnerName} 赢啦！`
     : isLast
-    ? `${winnerName} 最后一名 💀`
+    ? `${winnerName} 垫底啦 💀`
     : `${medals[rank - 1] || `第${rank}名`} ${winnerName}`
 
   // 副文字
   const subText = isFirst
-    ? '🥇 第一名 恭喜！'
+    ? '🥇 太棒了！你是第一名！'
     : isLast
-    ? '游戏结束 😅'
+    ? '本局结束 😅'
     : `第 ${rank} 名 · 继续加油！`
 
   // 主文字颜色

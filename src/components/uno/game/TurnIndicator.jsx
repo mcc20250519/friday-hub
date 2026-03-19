@@ -56,7 +56,7 @@ export default function TurnIndicator({
             : 'bg-gray-100 text-gray-600'
         }`}
       >
-        {isMyTurn ? `⚡ 你的回合` : `${displayName} 的回合`}
+        {isMyTurn ? `⚡ 到你了！` : `⏳ ${displayName} 思考中...`}
       </div>
     </div>
   )

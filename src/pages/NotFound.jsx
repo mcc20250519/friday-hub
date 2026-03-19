@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Home, Search, ArrowLeft } from 'lucide-react';
+import BackButton from '@/components/common/BackButton';
 
 /**
  * NotFound 404 页面
@@ -60,13 +61,12 @@ export default function NotFound() {
             返回首页
           </Link>
 
-          <button
-            onClick={() => window.history.back()}
-            className="inline-flex items-center justify-center px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-lg hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 min-h-[48px]"
+          <BackButton
+            variant="secondary"
+            className="px-6 py-3 font-medium rounded-lg min-h-[48px]"
           >
-            <ArrowLeft className="w-5 h-5 mr-2" />
             返回上一页
-          </button>
+          </BackButton>
         </div>
 
         {/* 底部装饰 */}

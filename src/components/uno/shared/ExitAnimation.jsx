@@ -387,7 +387,7 @@ export default function ExitAnimation({
               letterSpacing: '0.08em',
               margin: 0,
             }}>
-              正在离开...
+              正在开溜...
             </p>
           </div>
         </div>

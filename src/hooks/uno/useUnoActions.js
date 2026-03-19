@@ -15,8 +15,9 @@ import { toast } from '@/hooks/useToast'
  * @param {Object} gameState - 当前游戏状态
  * @param {Array}  playerIds - 按座位顺序排列的玩家 ID 数组
  * @param {string} [gameMode] - 游戏模式（由 GameBoard 从 gameState 读取后传入）
+ * @param {string} [scoringMode] - 积分模式（娱乐模式专用，'basic' 或 'ranking'）
  */
-export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODES.STANDARD) {
+export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODES.STANDARD, scoringMode) {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -168,13 +169,13 @@ export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODE
           throw new Error('这张牌不能出')
         }
 
-        // 计算下一状态（传入 gameMode，让规则引擎走正确分支）
+        // 计算下一状态（传入 gameMode 和 scoringMode，让规则引擎走正确分支）
         const currentState = buildStateForRules()
         let nextState = getNextState(
           currentState,
           { type: 'play', userId: user.id, card, chosenColor },
           playerIds,
-          { gameMode }
+          { gameMode, scoringMode }
         )
 
         // 处理重洗
@@ -210,6 +211,7 @@ export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODE
       logAction,
       handleReshuffleIfNeeded,
       roomId,
+      scoringMode,
     ]
   )
 
@@ -245,7 +247,7 @@ export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODE
         currentState,
         { type: 'draw', userId: user.id },
         playerIds,
-        { gameMode }
+        { gameMode, scoringMode }
       )
 
       nextState = await handleReshuffleIfNeeded(nextState)
@@ -268,6 +270,7 @@ export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODE
     persistState,
     logAction,
     handleReshuffleIfNeeded,
+    scoringMode,
   ])
 
   // ── 统一惩罚处理函数 ─────────────────────────────────────────

@@ -317,7 +317,7 @@ export default function OpponentArea({
             {/* 当前出牌指示 */}
             {opponent.isCurrentTurn && unoCalled[opponent.userId] !== true && (
               <div className={`font-semibold text-yellow-600 animate-pulse ${isTight ? 'text-[8px]' : isCompact ? 'text-[9px]' : 'text-[11px]'}`}>
-                ⚡ 出牌中
+                ⚡ 思考中...
               </div>
             )}
 

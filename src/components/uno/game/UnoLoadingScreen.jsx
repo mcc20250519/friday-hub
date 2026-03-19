@@ -305,8 +305,8 @@ export default function UnoLoadingScreen({
 
   // 显示文案：信号驱动模式用 loadingText，回调模式用固定文案
   const displayText = isSignalMode
-    ? (loadingText || '正在加载...')
-    : 'LOADING...'
+    ? (loadingText || '正在洗牌...')
+    : '正在洗牌...'
 
   // 进度百分比（信号驱动模式显示，回调模式不显示）
   const progressPct = Math.round(progress)

@@ -237,7 +237,7 @@ export default function GameResult({
           {/* 标题 */}
           <div className="text-center mb-6">
             <div className="text-8xl mb-2">🎊</div>
-            <h2 className="text-3xl font-bold text-gray-800">游戏结束</h2>
+            <h2 className="text-3xl font-bold text-gray-800">本局结束</h2>
             <p className="text-sm text-gray-500 mt-2">
               {isRankingMode ? '排名模式' : '基础模式'} · 排名已生成
             </p>
@@ -293,7 +293,7 @@ export default function GameResult({
                 <>
                   <div className="text-2xl mb-1">🎉</div>
                   <p className="font-bold text-gray-800">
-                    恭喜你获得第一名！
+                    太棒了！你是第一名！
                     {myRoundScore != null && myRoundScore > 0 && (
                       <span className="ml-2 text-green-600">+{myRoundScore} 分</span>
                     )}
@@ -301,7 +301,7 @@ export default function GameResult({
                 </>
               ) : (
                 <p className="text-gray-700">
-                  你排名第 <span className="font-bold text-purple-600">{myRank}</span>
+                  你的名次是第 <span className="font-bold text-purple-600">{myRank}</span>
                   {myRoundScore != null && (
                     <span className={`ml-2 font-bold ${myRoundScore > 0 ? 'text-green-600' : 'text-gray-400'}`}>
                       {myRoundScore > 0 ? `+${myRoundScore}` : '0'} 分
@@ -357,18 +357,18 @@ export default function GameResult({
               <>
                 <div className="text-8xl mb-4 animate-bounce">🎉</div>
                 <h2 className="text-3xl font-bold text-yellow-600 mb-2">
-                  恭喜获胜！
+                  太棒了！
                 </h2>
-                <p className="text-gray-600">你赢得了这局游戏</p>
+                <p className="text-gray-600">你是本局的 UNO 大师！</p>
               </>
             ) : (
               <>
                 <div className="text-8xl mb-4">🏆</div>
                 <h2 className="text-3xl font-bold text-gray-800 mb-2">
-                  游戏结束
+                  本局结束
                 </h2>
                 <p className="text-gray-600">
-                  胜者：<span className="font-bold text-purple-600">{winnerName}</span>
+                  本局赢家：<span className="font-bold text-purple-600">{winnerName}</span>
                 </p>
               </>
             )}

@@ -1,4 +1,4 @@
-/**
+ /**
  * GameOpeningOrchestrator - 游戏开场状态机
  *
  * 实现 PRD 中定义的开场完整流程：
@@ -876,7 +876,7 @@ export default function GameOpeningOrchestrator({
         >
           <div className="bg-orange-500/90 backdrop-blur-sm text-white font-bold text-sm px-5 py-2 rounded-full tracking-wide shadow-xl border border-orange-300/50 flex items-center gap-2">
             <span>⚠️</span>
-            <span>功能牌不能作为起始牌，重新翻...</span>
+            <span>哎呀，功能牌不能当起始牌，重翻一张...</span>
           </div>
         </div>
       )}

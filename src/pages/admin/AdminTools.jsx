@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/store/AuthContext'
 import { Button } from '@/components/ui/button'
@@ -24,6 +24,7 @@ const ADMIN_EMAILS = [
 export default function AdminTools() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const location = useLocation()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [tools, setTools] = useState([])
@@ -514,6 +515,32 @@ ${mainCode.substring(0, 500)}${mainCode.length > 500 ? '\n// ... 代码已截断
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* 管理后台导航 */}
+        <div className="mb-8 border-b border-gray-200">
+          <div className="flex items-center gap-8">
+            <button
+              onClick={() => navigate('/admin/tools')}
+              className={`px-4 py-3 font-semibold text-sm border-b-2 transition-colors ${
+                location.pathname === '/admin/tools'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              工具管理
+            </button>
+            <button
+              onClick={() => navigate('/admin/cards')}
+              className={`px-4 py-3 font-semibold text-sm border-b-2 transition-colors ${
+                location.pathname === '/admin/cards'
+                  ? 'border-purple-600 text-purple-600'
+                  : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
+            >
+              卡片管理
+            </button>
+          </div>
+        </div>
+
         {/* 头部 */}
         <div className="flex items-center justify-between mb-8">
           <div>

@@ -17,8 +17,16 @@ import {
   ExternalLink,
   Package,
   Clock,
-  Trash2
+  Trash2,
+  Lock,
+  ChevronRight
 } from 'lucide-react'
+
+// 管理员邮箱列表
+const ADMIN_EMAILS = [
+  '2995111793@qq.com',
+  // 在此添加其他管理员邮箱
+]
 
 /**
  * 生成头像背景色（基于邮箱首字母）
@@ -583,6 +591,32 @@ export default function Profile() {
           {/* 账号设置 */}
           <TabsContent value="settings">
             <div className="space-y-6">
+              {/* 管理员专属入口 */}
+              {ADMIN_EMAILS.includes(user?.email) && (
+                <Card className="border-2 border-black shadow-[4px_4px_0px_#1A1A1A]" style={{ background: '#FFE566' }}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="flex items-center gap-2 text-black">
+                      <span style={{ fontSize: '20px' }}>🎛️</span>
+                      管理后台
+                    </CardTitle>
+                    <CardDescription className="text-gray-600">管理员专属 · 工具 · 卡片 · 文案</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <Button
+                      className="w-full justify-between text-black font-bold border-2 border-black"
+                      style={{ background: '#1A1A1A', color: '#FFE566', boxShadow: '3px 3px 0px #5A5350' }}
+                      onClick={() => navigate('/admin')}
+                    >
+                      <span className="flex items-center gap-2">
+                        <Settings className="h-4 w-4" />
+                        进入管理后台
+                      </span>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
               {/* 修改昵称 */}
               <Card>
                 <CardHeader>

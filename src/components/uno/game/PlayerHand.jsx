@@ -279,21 +279,21 @@ export default function PlayerHand({
         {/* 信息栏 */}
         <div className="flex items-center justify-between mb-3 min-h-[28px]">
           <span className="text-xs text-gray-500 font-medium">
-            我的手牌（{displayHand.length} 张）
+            🎴 我的手牌（{displayHand.length}）
           </span>
 
           <div className="flex items-center gap-2">
             {/* +2/+4 强制摸牌提示 */}
             {isMyTurn && pendingDrawCount > 0 && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-600 font-semibold border border-red-200">
-                ⚠️ 必须摸 {pendingDrawCount} 张
+                ⚠️ 哎呀，你需要摸 {pendingDrawCount} 张牌
               </span>
             )}
 
             {/* 官方规则：有牌可出时，提示必须出牌，不能摸牌 */}
             {!isEntertainment && isMyTurn && pendingDrawCount === 0 && playableCards.length > 0 && (
               <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-100 text-yellow-700 font-semibold border border-yellow-200">
-                📌 有牌可出，必须出牌
+                📌 有牌就得打出去哦
               </span>
             )}
 
@@ -309,7 +309,7 @@ export default function PlayerHand({
                 disabled={actionsLoading}
                 className="text-xs px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-full font-semibold transition-colors disabled:opacity-50"
               >
-                摸 {pendingDrawCount} 张牌
+                👇 摸 {pendingDrawCount} 张牌
               </button>
             )}
 
@@ -329,7 +329,7 @@ export default function PlayerHand({
                     : 'bg-blue-500 hover:bg-blue-600'       // 无牌可出 或 官方模式：蓝色
                   }`}
               >
-                {isEntertainment && playableCards.length > 0 ? '🎲 摸一张（可选）' : '摸一张'}
+                {isEntertainment && playableCards.length > 0 ? '🎲 摸一张（可选）' : '👇 摸一张'}
               </button>
             )}
 

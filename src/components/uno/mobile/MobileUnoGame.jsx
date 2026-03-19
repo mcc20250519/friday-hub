@@ -1,10 +1,10 @@
 /**
  * MobileUnoGame - 移动端 UNO 游戏主容器
- * 
+ *
  * 负责：
  * 1. 复用 PC 端的游戏逻辑（useUnoRoom、useUnoGameState 等）
- * 2. 使用移动端优化的 UI 组件（MobileGameBoard、MobileHandCards 等）
- * 3. 处理移动端特有的限制（8 人限制、横屏提示等）
+ * 2. 使用移动端优化的横屏 UI 组件（MobileGameBoard、MobileHandCards 等）
+ * 3. 处理移动端特有的限制（8 人限制、横屏检测提示等）
  */
 
 import { useState, useEffect } from 'react'
@@ -20,6 +20,59 @@ import RoomLobby from '../lobby/RoomLobby'
 import { Button } from '@/components/ui/button'
 import { AlertCircle, Users } from 'lucide-react'
 
+// ─── 横屏检测 Hook ────────────────────────────────────────────────────────
+function useOrientation() {
+  const isPortrait = () =>
+    typeof window !== 'undefined' && window.innerHeight > window.innerWidth
+
+  const [portrait, setPortrait] = useState(isPortrait())
+
+  useEffect(() => {
+    const handler = () => setPortrait(isPortrait())
+    window.addEventListener('resize', handler)
+    window.addEventListener('orientationchange', handler)
+    return () => {
+      window.removeEventListener('resize', handler)
+      window.removeEventListener('orientationchange', handler)
+    }
+  }, [])
+
+  return portrait
+}
+
+// ─── 竖屏提示覆盖层 ──────────────────────────────────────────────────────
+function RotatePrompt() {
+  return (
+    <div
+      style={{
+        position: 'fixed',
+        inset: 0,
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 9999,
+        color: 'white',
+        textAlign: 'center',
+        padding: 24,
+      }}
+    >
+      <div style={{ fontSize: 56, animation: 'tilt 2s ease-in-out infinite' }}>📱</div>
+      <h2 style={{ fontSize: '1.4rem', fontWeight: 800, margin: '12px 0 8px' }}>请横屏体验</h2>
+      <p style={{ opacity: 0.85, fontSize: '0.95rem', lineHeight: 1.5 }}>
+        旋转设备以获得最佳游戏体验
+      </p>
+      <style>{`
+        @keyframes tilt {
+          0%, 100% { transform: rotate(-10deg); }
+          50% { transform: rotate(10deg); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
 /**
  * @param {Object} props
  * @param {string} props.roomCode - 房间码
@@ -28,6 +81,9 @@ export default function MobileUnoGame({ roomCode }) {
   const navigate = useNavigate()
   const [joinAttempted, setJoinAttempted] = useState(false)
   const [addingBot, setAddingBot] = useState(false)
+
+  // 横屏检测：游戏进行中若为竖屏则显示提示
+  const isPortrait = useOrientation()
 
   const {
     room,
@@ -38,6 +94,7 @@ export default function MobileUnoGame({ roomCode }) {
     leaveRoom,
     startGame,
     refreshPlayers,
+    updateScoreBoardInDB,
     loading,
     error,
   } = useUnoRoom(roomCode)
@@ -225,6 +282,11 @@ export default function MobileUnoGame({ roomCode }) {
     return p
   })
 
+  // ── 机器人玩家 ID 列表 ────────────────────────────────────────
+  const botPlayerIds = Object.keys(botMap).filter((id) =>
+    players.some((p) => p.user_id === id)
+  )
+
   // ── 加载中 ───────────────────────────────────────────────────
 
   if (loading || !room) {
@@ -232,7 +294,7 @@ export default function MobileUnoGame({ roomCode }) {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">加载中...</p>
+          <p className="text-gray-600">正在推开房间大门...</p>
         </div>
       </div>
     )
@@ -245,7 +307,7 @@ export default function MobileUnoGame({ roomCode }) {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-100 to-pink-100 p-4">
         <div className="bg-white rounded-2xl p-6 max-w-md w-full text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">加载失败</h2>
+          <h2 className="text-xl font-bold mb-2">哎呀，进不去房间</h2>
           <p className="text-gray-600 mb-4">{error}</p>
           <Button onClick={() => navigate('/games')}>
             返回游戏大厅
@@ -279,9 +341,15 @@ export default function MobileUnoGame({ roomCode }) {
   )
 
   // ── 根据房间状态渲染不同界面 ──────────────────────────────────
+  // 游戏阶段才强制横屏（大厅阶段不强制）
+  const isGamePhase =
+    room.status === ROOM_STATUS.PLAYING || room.status === ROOM_STATUS.FINISHED
 
   return (
     <>
+      {/* 竖屏提示：仅在游戏阶段 + 竖屏时显示 */}
+      {isGamePhase && isPortrait && <RotatePrompt />}
+
       {PlayerLimitWarning}
 
       {room.status === ROOM_STATUS.WAITING && (
@@ -320,6 +388,9 @@ export default function MobileUnoGame({ roomCode }) {
           room={room}
           players={enrichedPlayers}
           myPlayer={myPlayer}
+          isHost={isHost}
+          botPlayerIds={botPlayerIds}
+          updateScoreBoardInDB={updateScoreBoardInDB}
           onLeave={handleLeave}
         />
       )}

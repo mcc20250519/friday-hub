@@ -100,7 +100,7 @@ export default function UnoGameOverAnimation({
   }
 
   // ── 标题文字 ─────────────────────────────────────────────────
-  const titleText = mode === 'official' ? 'ROUND END' : 'GAME OVER'
+  const titleText = mode === 'official' ? '本局结束' : '本局结束'
 
   return (
     <div
@@ -280,7 +280,7 @@ export default function UnoGameOverAnimation({
             onMouseEnter={e => e.target.style.background = 'rgba(255,255,255,0.2)'}
             onMouseLeave={e => e.target.style.background = 'rgba(255,255,255,0.1)'}
           >
-            📊 积分板
+            📊 战绩榜
           </button>
 
           {/* 返回大厅（红色） */}

@@ -8,19 +8,22 @@ import { Toaster } from '@/components/ui/toaster'
 
 // 页面组件
 import Home from '@/pages/Home'
-import Tools from '@/pages/Tools'
-import ToolDetail from '@/pages/ToolDetail'
-import Games from '@/pages/Games'
-import PartyGame from '@/pages/PartyGame'
+import Tools from '@/pages/tools/Tools'
+import ToolDetail from '@/pages/tools/ToolDetail'
+import Games from '@/pages/games/Games'
+import PartyGame from '@/pages/games/PartyGame'
 import UnoGame from '@/pages/games/UnoGame'
+import DrawAndGuessGame from '@/pages/games/DrawAndGuessGame'
 import Profile from '@/pages/Profile'
-import Login from '@/pages/Login'
-import Register from '@/pages/Register'
-import VerifyEmail from '@/pages/VerifyEmail'
-import ForgotPassword from '@/pages/ForgotPassword'
+import Login from '@/pages/auth/Login'
+import Register from '@/pages/auth/Register'
+import VerifyEmail from '@/pages/auth/VerifyEmail'
+import ForgotPassword from '@/pages/auth/ForgotPassword'
 import About from '@/pages/About'
 import NotFound from '@/pages/NotFound'
-import AdminTools from '@/pages/AdminTools'
+import AdminTools from '@/pages/admin/AdminTools'
+import CardManagement from '@/pages/admin/CardManagement'
+import AdminDashboard from '@/pages/admin/AdminDashboard'
 
 /**
  * 根组件
@@ -42,6 +45,8 @@ export default function App() {
               <Route path="/games/party" element={<PartyGame />} />
               <Route path="/games/uno" element={<UnoGame />} />
               <Route path="/games/uno/room/:roomCode" element={<UnoGame />} />
+              <Route path="/games/draw-and-guess" element={<DrawAndGuessGame />} />
+              <Route path="/games/draw-and-guess/room/:roomCode" element={<DrawAndGuessGame />} />
               <Route path="/about" element={<About />} />
 
               {/* 认证相关路由 */}
@@ -53,8 +58,12 @@ export default function App() {
               {/* 受保护路由 - 需要登录 */}
               <Route element={<ProtectedRoute />}>
                 <Route path="/profile" element={<Profile />} />
+                {/* 新统一管理后台 */}
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/cards" element={<AdminDashboard />} />
+                <Route path="/admin/content" element={<AdminDashboard />} />
+                {/* 兼容旧路由 */}
                 <Route path="/admin/tools" element={<AdminTools />} />
-                {/* 其他需要登录的路由可以放在这里 */}
               </Route>
             </Route>
 
