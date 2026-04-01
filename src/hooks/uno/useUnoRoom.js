@@ -143,7 +143,7 @@ export function useUnoRoom(roomCode) {
       mounted = false
       unsubscribeFromRoom()
     }
-  }, [roomCode, user])
+  }, [roomCode, user?.id])
 
   // ── Realtime 订阅 ────────────────────────────────────────────
 
@@ -200,8 +200,9 @@ export function useUnoRoom(roomCode) {
       )
       .subscribe((status) => {
         // 订阅状态回调：跟踪连接状态
-        if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR' || status === 'CLOSED') {
-          console.warn('[UNO Room] Realtime 订阅断开:', status)
+        if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
+          console.warn('[UNO Room] Realtime 订阅断开:', status, '— 3s 后自动重连')
+          setTimeout(() => subscribeToRoom(roomId), 3000)
         }
       })
 
@@ -238,7 +239,7 @@ export function useUnoRoom(roomCode) {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [roomCode, user, room?.id, subscribeToRoom])
+  }, [roomCode, user?.id, room?.id, subscribeToRoom])
 
   // ── 创建房间 ─────────────────────────────────────────────────
 
@@ -466,12 +467,22 @@ export function useUnoRoom(roomCode) {
       if (gameMode) updatePayload.game_mode = gameMode
       if (scoringMode) updatePayload.scoring_mode = scoringMode
 
-      const { error } = await supabase
+      const { data: updatedRoom, error } = await supabase
         .from('uno_rooms')
         .update(updatePayload)
         .eq('id', room.id)
+        .select()
+        .single()
 
       if (error) throw error
+
+      // 主动更新本地 room 状态，不依赖 Realtime 推送
+      // 这样即使 Realtime 延迟，界面也能立即切换到游戏
+      if (updatedRoom) {
+        setRoom(updatedRoom)
+      } else {
+        setRoom(prev => ({ ...prev, ...updatePayload }))
+      }
     } catch (err) {
       setError(err.message || '开始游戏失败')
       throw err

@@ -58,7 +58,12 @@ export function AuthProvider({ children }) {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
       const currentUser = session?.user ?? null
-      setUser(currentUser)
+      // 使用函数式更新：只有 user.id 真正改变时才更新 user 对象
+      // 避免 TOKEN_REFRESHED 等事件产生新对象引用，导致依赖 user 的 Effect 重新执行
+      setUser(prev => {
+        if (prev?.id === currentUser?.id) return prev
+        return currentUser
+      })
       
       // 用户变化时，更新 profile
       if (currentUser?.id) {

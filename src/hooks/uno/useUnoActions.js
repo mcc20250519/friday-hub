@@ -11,13 +11,15 @@ import { CARD_TYPES, ROOM_STATUS, GAME_MODES } from '@/lib/uno/constants'
 import { toast } from '@/hooks/useToast'
 
 /**
- * @param {string} roomId    - 房间 ID
- * @param {Object} gameState - 当前游戏状态
- * @param {Array}  playerIds - 按座位顺序排列的玩家 ID 数组
- * @param {string} [gameMode] - 游戏模式（由 GameBoard 从 gameState 读取后传入）
- * @param {string} [scoringMode] - 积分模式（娱乐模式专用，'basic' 或 'ranking'）
+ * @param {string}   roomId             - 房间 ID
+ * @param {Object}   gameState          - 当前游戏状态
+ * @param {Array}    playerIds          - 按座位顺序排列的玩家 ID 数组
+ * @param {string}   [gameMode]         - 游戏模式（由 GameBoard 从 gameState 读取后传入）
+ * @param {string}   [scoringMode]      - 积分模式（娱乐模式专用，'basic' 或 'ranking'）
+ * @param {Function} [onOptimisticUpdate] - 出牌/摸牌成功后立即回调，用于乐观更新本地 UI
+ *                                         参数为下一个游戏状态（camelCase 格式）
  */
-export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODES.STANDARD, scoringMode) {
+export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODES.STANDARD, scoringMode, onOptimisticUpdate) {
   const { user } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -184,6 +186,11 @@ export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODE
         // 持久化
         await persistState(nextState)
 
+        // 乐观更新本地状态（不等 Realtime 推送，让 UI 立即响应）
+        if (onOptimisticUpdate) {
+          onOptimisticUpdate(nextState)
+        }
+
         // 记录日志
         await logAction('play', card, chosenColor)
 
@@ -253,6 +260,12 @@ export function useUnoActions(roomId, gameState, playerIds, gameMode = GAME_MODE
       nextState = await handleReshuffleIfNeeded(nextState)
 
       await persistState(nextState)
+
+      // 乐观更新本地状态
+      if (onOptimisticUpdate) {
+        onOptimisticUpdate(nextState)
+      }
+
       await logAction('draw')
     } catch (err) {
       setError(err.message || '摸牌失败')

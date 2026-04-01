@@ -187,7 +187,7 @@ export function useUnoGameState(roomId, players, gameMode = GAME_MODES.STANDARD)
         channelRef.current = null
       }
     }
-  }, [roomId, user])
+  }, [roomId, user?.id])
 
   // ── Realtime 订阅游戏状态 ────────────────────────────────────
 
@@ -220,13 +220,27 @@ export function useUnoGameState(roomId, players, gameMode = GAME_MODES.STANDARD)
       .subscribe((status) => {
         // 订阅状态回调：跟踪连接状态
         // 'SUBSCRIBED' | 'CLOSED' | 'TIMED_OUT' | 'CHANNEL_ERROR'
-        if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR' || status === 'CLOSED') {
-          console.warn('[UNO] Realtime 订阅断开:', status)
+        if (status === 'TIMED_OUT' || status === 'CHANNEL_ERROR') {
+          console.warn('[UNO Game] Realtime 订阅断开:', status, '— 3s 后自动重连')
+          // 断开后延迟重连，先拉取最新状态防止遗漏更新
+          // 用 channel 引用判断：如果当前 channel 已被替换（组件卸载或主动重订），则不再重试
+          const thisChannel = channel
+          setTimeout(async () => {
+            if (channelRef.current !== thisChannel) return // 已被替换，跳过
+            try {
+              const latestState = await fetchGameState()
+              if (latestState) setGameState(latestState)
+            } catch (e) {
+              console.warn('[UNO Game] 断线重连拉取状态失败:', e)
+            }
+            if (channelRef.current !== thisChannel) return // 再次检查
+            subscribeToGameState()
+          }, 3000)
         }
       })
 
     channelRef.current = channel
-  }, [roomId])
+  }, [roomId, fetchGameState])
 
   // ── 页面可见性处理：切换标签页回来时主动同步状态 ────────────────
   useEffect(() => {
@@ -262,7 +276,7 @@ export function useUnoGameState(roomId, players, gameMode = GAME_MODES.STANDARD)
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
     }
-  }, [roomId, user, fetchGameState, subscribeToGameState])
+  }, [roomId, user?.id, fetchGameState, subscribeToGameState])
 
   // ── 定期心跳检查：确保 Realtime 连接活跃 ────────────────────────
   useEffect(() => {
@@ -293,7 +307,7 @@ export function useUnoGameState(roomId, players, gameMode = GAME_MODES.STANDARD)
     return () => {
       clearInterval(heartbeatInterval)
     }
-  }, [roomId, user, fetchGameState, subscribeToGameState])
+  }, [roomId, user?.id, fetchGameState, subscribeToGameState])
 
   // ── 衍生状态（隐私保护） ─────────────────────────────────────
 

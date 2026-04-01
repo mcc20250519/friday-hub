@@ -121,6 +121,29 @@ export default function GameBoard({ room, players, isHost, leaveRoom, botPlayerI
     subscribeToGameState,  // 断线重连时重新订阅
   } = useUnoGameState(room.id, players, resolvedGameMode)
 
+  // 乐观更新回调：出牌/摸牌成功后立即更新本地 gameState，不等 Realtime 推送
+  // 注意：PC 端不乐观更新 top_card / current_color，
+  // 因为这两个字段由飞牌动画的 setDisplayTopCard / setDisplayColor 负责管理，
+  // 避免与现有的乐观动画逻辑冲突导致顶牌闪烁。
+  const handleOptimisticUpdate = useCallback((nextState) => {
+    setGameState(prev => ({
+      ...prev,
+      current_player_index: nextState.currentPlayerIndex,
+      direction: nextState.direction,
+      // top_card / current_color 不在此更新，由飞牌动画完成后更新
+      draw_pile: nextState.drawPile,
+      discard_pile: nextState.discardPile,
+      hands: nextState.hands,
+      pending_draw_count: nextState.pendingDrawCount,
+      winner_id: nextState.winnerId || null,
+      uno_called: nextState.unoCalled || {},
+      rank_list: nextState.rankList || [],
+      uno_window_open: nextState.unoWindowOpen ?? false,
+      uno_window_owner: nextState.unoWindowOwner ?? null,
+      reported_this_window: nextState.reportedThisWindow || [],
+    }))
+  }, [setGameState])
+
   const {
     playCard,
     drawCard,
@@ -129,7 +152,7 @@ export default function GameBoard({ room, players, isHost, leaveRoom, botPlayerI
     reportPlayer,
     loading: actionsLoading,
     error: actionsError,
-  } = useUnoActions(room.id, gameState, playerIds, gameMode, resolvedScoringMode)
+  } = useUnoActions(room.id, gameState, playerIds, gameMode, resolvedScoringMode, handleOptimisticUpdate)
 
   const gameToast = useGameToast()
   const rankNotification = useRankNotification()
